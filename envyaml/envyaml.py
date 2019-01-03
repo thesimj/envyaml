@@ -30,27 +30,47 @@ from yaml import safe_load
 class EnvYaml:
     __version__: str = '0.1901'
 
-    env_path: str = ['env.yaml', 'env.yml']
     separator: str = '__'
+    file_path: str = None
 
+    __env_path: str = 'env.yaml'
     __config_raw: dict = {}
     __config: dict = {}
 
     def __init__(self, file_path: str = None, separator: str = '__'):
-        self.env_path = [file_path] if file_path else os.environ.get('ENV_YAML_FILE', self.env_path)
+        self.__env_path = self.__get_file_path(file_path)
         self.separator = separator
 
         # read and parse files
-        with open(file_path) as f:
-            # expand env vars
-            self.__config_raw = safe_load(os.path.expandvars(f.read()))
+        if os.path.exists(self.__env_path):
+            with open(self.__env_path) as f:
+                # expand env vars
+                self.__config_raw = safe_load(os.path.expandvars(f.read()))
 
-            # make it flat
-            if self.__config_raw:
-                self.__config = self.__dict_flat(self.__config_raw)
+                # make it flat
+                if self.__config_raw:
+                    self.__config = self.__dict_flat(self.__config_raw)
+
+                # set config file path
+                self.file_path = self.__env_path
+
+                # exit with new class instance
+                return
+
+        # raise error when file not found
+        raise FileNotFoundError('No such config files')
 
     def export(self) -> dict:
         return self.__config_raw.copy()
+
+    def __get_file_path(self, file_path: str = None) -> str:
+        if file_path:
+            return file_path
+
+        elif os.environ.get('ENV_YAML_FILE'):
+            return os.environ.get('ENV_YAML_FILE')
+
+        return self.file_path
 
     def __dict_flat(self, config: any, deep: [str] = None) -> dict:
         dest_: dict = {}

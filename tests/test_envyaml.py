@@ -2,10 +2,13 @@ from __future__ import absolute_import
 
 import os
 
+import pytest
+
 from envyaml.envyaml import EnvYaml
 
 # set os env
 os.environ['TEST_ENV'] = 'test-env'
+os.environ['ENV_YAML_FILE'] = 'tests/env.test.yaml'
 
 
 def test_it_should_read_custom_file():
@@ -37,3 +40,14 @@ def test_it_should_return_dict_on_export():
     config = EnvYaml('tests/env.test.yaml', separator=':')
 
     assert isinstance(config.export(), dict) and len(config.export()) >= 4
+
+
+def test_is_should_read_config_from_env_variable():
+    config = EnvYaml()
+
+    assert isinstance(config.export(), dict) and len(config.export()) >= 4
+
+
+def test_is_should_raise_exception_when_file_not_found():
+    with pytest.raises(FileNotFoundError):
+        EnvYaml('tests/env.notfound.yaml')
