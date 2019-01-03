@@ -21,8 +21,6 @@
 # SOFTWARE.
 
 
-# from os import environ
-# from os.path import expandvars
 import os
 from typing import Any
 
@@ -30,6 +28,8 @@ from yaml import safe_load
 
 
 class EnvYaml:
+    __version__: str = '0.1901'
+
     env_path: str = ['env.yaml', 'env.yml']
     separator: str = '__'
 
