@@ -22,7 +22,6 @@
 
 
 import os
-from typing import Any
 
 from yaml import safe_load
 
@@ -60,6 +59,12 @@ class EnvYaml:
         # raise error when file not found
         raise FileNotFoundError('No such config files')
 
+    def get(self, key: str, default: any = None) -> any:
+        if key in self.__config:
+            return self.__config[key]
+
+        return default
+
     def export(self) -> dict:
         return self.__config_raw.copy()
 
@@ -94,7 +99,7 @@ class EnvYaml:
 
         return dest_
 
-    def __getattr__(self, name: str) -> Any:
+    def __getattr__(self, name: str) -> any:
         return self.__config[name]
 
     def __getitem__(self, item):

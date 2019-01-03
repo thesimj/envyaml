@@ -51,3 +51,11 @@ def test_is_should_read_config_from_env_variable():
 def test_is_should_raise_exception_when_file_not_found():
     with pytest.raises(FileNotFoundError):
         EnvYaml('tests/env.notfound.yaml')
+
+
+def test_is_should_use_default_value():
+    config = EnvYaml('tests/env.test.yaml')
+
+    assert config.get('not__exist__key') is None
+    assert config.get('not__exist__key', 'default') == 'default'
+    assert config.get('config__test') == 100
