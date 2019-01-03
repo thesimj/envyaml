@@ -70,7 +70,7 @@ class EnvYaml:
         elif os.environ.get('ENV_YAML_FILE'):
             return os.environ.get('ENV_YAML_FILE')
 
-        return self.file_path
+        return self.__env_path
 
     def __dict_flat(self, config: any, deep: [str] = None) -> dict:
         dest_: dict = {}
