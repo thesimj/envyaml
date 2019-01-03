@@ -37,7 +37,7 @@ class EnvYaml:
     __config: dict = {}
 
     def __init__(self, file_path: str = None, separator: str = '__'):
-        self.env_path = [file_path] if file_path else os.environ.get('ENVYAML_FILE', self.env_path)
+        self.env_path = [file_path] if file_path else os.environ.get('ENV_YAML_FILE', self.env_path)
         self.separator = separator
 
         # read and parse files
