@@ -1,11 +1,12 @@
 ### EnvYAML
-Simple YAML configuration file parser and easy access for structured data
+Simple YAML configuration file parser with easy access for structured data
 
 ### Why
-In recent our configuration file had to be more and more complex, 
-and simple configuration are not enough
+Modern configuration file become to be more complex, flexible and readable. 
+YAML file format are perfect to store configuration file but had no option to pass environment variables.
+This project try to simplify usage YAML file and environment variables as program configuration file with easy config key access.  
 
-### Basic example
+### Basic usage
 Let's assume we had a project with this config file `env.yaml`
 
 ```yaml
