@@ -6,4 +6,4 @@ install:
   - pip install -q python-coveralls
   - pip install -q -r requirements.txt
 script:
-  - pytest -v --tb=native --cov
+  - pytest -v --tb=native
