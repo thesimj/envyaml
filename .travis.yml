@@ -7,3 +7,5 @@ install:
   - pip install -q -r requirements.txt
 script:
   - pytest -v --tb=native --cov
+after_success:
+  - coveralls
