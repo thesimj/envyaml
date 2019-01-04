@@ -4,7 +4,7 @@ import os
 
 import pytest
 
-from envyaml.envyaml import EnvYaml
+from envyaml.envyaml import EnvYAML
 
 # set os env
 os.environ['TEST_ENV'] = 'test-env'
@@ -12,7 +12,7 @@ os.environ['ENV_YAML_FILE'] = 'tests/env.test.yaml'
 
 
 def test_it_should_read_custom_file():
-    config = EnvYaml('tests/env.test.yaml')
+    config = EnvYAML('tests/env.test.yaml')
 
     # access by property name
     assert config.one__two__three__value == "one-two-three-value"
@@ -25,36 +25,36 @@ def test_it_should_read_custom_file():
 
 
 def test_it_should_populate_env_variable():
-    config = EnvYaml('tests/env.test.yaml')
+    config = EnvYAML('tests/env.test.yaml')
 
     assert config.config__test_env == os.environ['TEST_ENV']
 
 
 def test_it_should_work_with_custom_separator():
-    config = EnvYaml('tests/env.test.yaml', separator=':')
+    config = EnvYAML('tests/env.test.yaml', separator=':')
 
     assert config['one:two:three:value'] == "one-two-three-value"
 
 
 def test_it_should_return_dict_on_export():
-    config = EnvYaml('tests/env.test.yaml', separator=':')
+    config = EnvYAML('tests/env.test.yaml', separator=':')
 
     assert isinstance(config.export(), dict) and len(config.export()) >= 4
 
 
 def test_is_should_read_config_from_env_variable():
-    config = EnvYaml()
+    config = EnvYAML()
 
     assert isinstance(config.export(), dict) and len(config.export()) >= 4
 
 
 def test_is_should_raise_exception_when_file_not_found():
     with pytest.raises(FileNotFoundError):
-        EnvYaml('tests/env.notfound.yaml')
+        EnvYAML('tests/env.notfound.yaml')
 
 
 def test_is_should_use_default_value():
-    config = EnvYaml('tests/env.test.yaml')
+    config = EnvYAML('tests/env.test.yaml')
 
     assert config.get('not__exist__key') is None
     assert config.get('not__exist__key', 'default') == 'default'

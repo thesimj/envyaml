@@ -26,7 +26,7 @@ import os
 from yaml import safe_load
 
 
-class EnvYaml:
+class EnvYAML:
     __version__: str = '0.1901'
 
     separator: str = '__'
@@ -37,6 +37,11 @@ class EnvYaml:
     __config: dict = {}
 
     def __init__(self, file_path: str = None, separator: str = '__'):
+        """Create EnvYAML class instance and read content from file
+
+        :param file_path: file path for config or env.yaml by default
+        :param separator: use separator for path levels
+        """
         self.__env_path = self.__get_file_path(file_path)
         self.separator = separator
 
@@ -60,12 +65,22 @@ class EnvYaml:
         raise FileNotFoundError('No such config files')
 
     def get(self, key: str, default: any = None) -> any:
+        """Get config variable with default value. If no `default` value set use None
+
+        :param key: config key
+        :param default: value will be used when no key found
+        :return: value for config key or default value
+        :rtype any
+        """
         if key in self.__config:
             return self.__config[key]
 
         return default
 
     def export(self) -> dict:
+        """Export config
+        :return: dict with config
+        """
         return self.__config_raw.copy()
 
     def __get_file_path(self, file_path: str = None) -> str:
