@@ -31,14 +31,14 @@ redis:
       prefix: $REDIS_PREFIX
 ```
 
-and you environment variables set to
+and environment variables set to
 ```
 $DATABASE_HOST=xxx.xxx.xxx.xxx
 $DATABASE_PASSWORD=super-secret-password
 $REDIS_PREFIX=state
 ```
 
-parse file file with `EnvYAML`
+parse file with `EnvYAML`
 
 ```python
 from envyaml import EnvYAML
