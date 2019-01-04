@@ -1,4 +1,4 @@
 coverage
 PyYAML
 pytest
-pytest-cov==2.5.0
+pytest-cov==2.6
