@@ -25,7 +25,7 @@ import os
 
 from yaml import safe_load
 
-__version__ = '0.1901rc5'
+__version__ = '0.1901'
 
 
 class EnvYAML:

@@ -16,6 +16,6 @@ deploy:
   user: ${PYPI_USERNAME}
   password: ${PYPI_PASSWORD}
   on:
+    tags: true
     python: '3.6'
-    branch: master
     repo: thesimj/envyaml
