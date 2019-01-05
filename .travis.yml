@@ -11,6 +11,7 @@ after_success:
   - coveralls
 deploy:
   provider: pypi
+  distributions: sdist bdist_wheel
   user: patron3301
   password:
     secure: O3w9j/kH1/ZuWSBR2F9Eq9XL5yrm/RtFXeVUk2JBXJKoTPBzYgFZ/ZZKr3j6s0NpUWbnIbWKoNY/W0P/uy9cllCnx2d4JubDO8cfrbq0ZRIsewzFSHRhpDLEdWEFbIPHy6qOnUKYAT+zOPcvnE1cqOY0diAqUhuXzycoQTVbwU2IWFGaxugVtR0VfcsiWI2VHduHn2HVghqRIBW2CeFMHrc4Hru7YPEdxaw3BxatkgCNeALoLUC6rdaj27dHhV28z7iKi6kM8LPEcGZfOQ23vaXkoDeV+OT0ueprJlUDyj5rGMnOjzsJaR6yE31LVy5vUP7UCpz/B/2aEc7Fj5DeGnvrs1IXrbn6w1DeSc3r4H9OCXv2V+KTzK3IIHtBt929J1kIA+42DOrazTEfBeXrvV6f8YMucqhgTMyNSPBWVhJF0ugPTt4igTiNZY0ylQzCNNlkYZ0YlVlIKPygCApgL7rS2W75xV19Y1CGagLvoA5a06zsRBmKE+n4ldQWFJu4ZVKBkISyu/PFtQXtSvv485jZV6VnLgB27SVSIhWybLpiJ58BOIqYTpdb7+TVIn11r0TWGAEaqaRMjMrDPva7m4Q8SiP1XFZhymyVGMwFj2C9ZRg/X0vTKFe0aCrodGxZ/YV2oBE1wN2DZvjZcir19pv+zU4ETxuMWWJomMpkGYE=
@@ -18,4 +19,3 @@ deploy:
     tags: true
     repo: thesimj/envyaml
     python: '3.6'
-  distributions: sdist bdist_wheel

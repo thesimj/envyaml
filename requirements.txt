@@ -3,4 +3,4 @@ pytest
 pytest-cov
 wheel
 twine
-
+setuptools
