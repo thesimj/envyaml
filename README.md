@@ -1,10 +1,15 @@
-# EnvYAML | [![Build Status](https://travis-ci.com/thesimj/envyaml.svg?branch=master)](https://travis-ci.com/thesimj/envyaml) [![Coverage Status](https://coveralls.io/repos/github/thesimj/envyaml/badge.svg?branch=master)](https://coveralls.io/github/thesimj/envyaml?branch=master)
+# EnvYAML | [![Latest Version](https://pypip.in/version/envyaml/badge.svg)](https://pypi.python.org/pypi/envyaml/) [![Build Status](https://travis-ci.com/thesimj/envyaml.svg?branch=master)](https://travis-ci.com/thesimj/envyaml) [![Coverage Status](https://coveralls.io/repos/github/thesimj/envyaml/badge.svg?branch=master)](https://coveralls.io/github/thesimj/envyaml?branch=master)
 Simple YAML configuration file parser with easy access for structured data
 
 ### Why
 Modern configuration file become to be more complex, flexible and readable. 
 YAML file format are perfect to store configuration file but had no option to pass environment variables.
 This project try to simplify usage YAML file and environment variables as program configuration file with easy config key access.  
+
+### Install
+```bash
+pip install envyaml
+```
 
 ### Basic usage
 Let's assume we had a project with this config file `env.yaml`
