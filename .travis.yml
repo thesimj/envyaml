@@ -1,14 +1,14 @@
 language: python
 sudo: false
 python:
-- '3.6'
+  - '3.6'
 install:
-- pip install -q python-coveralls
-- pip install -q -r requirements.txt
+  - pip install -q python-coveralls
+  - pip install -q -r requirements.txt
 script:
-- pytest -v --tb=native --cov
+  - pytest -v --tb=native --cov
 after_success:
-- coveralls
+  - coveralls
 deploy:
   provider: pypi
   user: patron3301
@@ -16,4 +16,4 @@ deploy:
     secure: a7HJ0f/IcLot29oyPRq/SceX+bLZuSode1eebIMIU0VhCTt5+R+xmOEnlxV5UYI4W/jbKUWkB94dzVZG7zMQRrkoQ/a63hHcnvbeby61CqyTnywaq3/JuAaezzcVpu14FyzcZzU83pmVBs4vMIsqBDL0jfbDUpi40ecLYB0X5wS/yB2e8irIVEpDA0mAjZtfAEqfonUORPqpGSii//G3aNcD6t/LlWv5N+A73tfltqZsv0uT8QrrUSUOVE6SYbf3OVqulfD0qmSIBHPoRKJNZOIT/9/e8J/V17JNNJh+7t/WP0fp12ARXJJsjG8p9ovH96G8QQxgZhacCSACvI7q7LQY+jvkrgeKgwMY+AhLaO7a4RkK2ZGeUaTfQ8A/qVJOcF+FRZHyHaQyCXEecvH4CVrvqUGr884SEEVNla/8DOqK4amChvo5Byq5W2ZcLlj7EINLprWi1KqI0dNYNIO7RwV8GPVfChlV5wlt6rGOYtGecZnsPUPZ5/ZKGc7o8kHRVdDPcsz4mYlMCG6nkAfSy+9fiwV/2+BdaLErPsn/076ouObVyMp3QxqVw2qOP3m8k8hZn8CCwUbYjf+DthogtBlLRkvmOlAWYRusAOvLltWjC1JGLWmBlVhh9I8/caCXKNdCmINvOcDEkpuzpsLipvmt7YNqLUCE2J15DBR19rw=
   on:
     tags: true
-    repo: patron3301/envyaml
+    repo: thesimj/envyaml
