@@ -1,17 +1,19 @@
 # -*- coding: utf-8 -*-
 from setuptools import setup
 
+from envyaml import __version__
+
 with open("README.md", "r") as f:
     long_description = f.read()
 
 setup(
     name='envyaml',
     packages=['envyaml'],
-    version='0.1901',
+    version=__version__,
     url='https://github.com/thesimj/envyaml',
     license='MIT',
     author='Mykola Bubelich',
-    author_email='',
+    author_email='thesimj@users.noreply.github.com',
     description='Simple YAML configuration file parser with easy access for structured data',
     install_requires=['PyYAML'],
     python_requires='>=3.6',
