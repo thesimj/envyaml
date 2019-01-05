@@ -10,14 +10,12 @@ script:
 after_success:
   - coveralls
 
-# remove deploy to pypi
-#deploy:
-#  provider: pypi
-#  distributions: sdist bdist_wheel
-#  user: patron3301
-#  password:
-#    secure: jTbfci1bIdvtQUaMKsbCSsyILHAJ1qFTR5GmuMlMsGFzTp0BB2PKaYGAJr0SD8u1itpxKmhAvkLN2iDNgQxfQknSTwvI+jzHYDwckMaER6sDQynRe6iE/1sl8LVzdH88oIIu38KRWgnetydOuciuRpX+4ID2/81onHyTaJeXceUB7rYn0gSTz2EL5rsJHtLkFNIvUTzn1cJmqWIKOPXzd1b9vdZpWn0n/rplu5OZunLkIsmus9RpHDDofR7IUWvfj/v4B//WZhJmCvl+GMoqC7/Qa4YG6Vm7iIt/ktgHgSRcvVTl+pv2LpPIGFXCAzUYXsdzL+p168om2lSwhIQp3wyivENbHad8BD5PrN/Gqw89QQtN2Q9abI5+S6EzYE6mjG3s8snAzt89UOZW0y3nHj1N/0cSKeaWnQvpNVsuSiR9HoP5jBygvoqbFSky2DvGqCtXzEWclBlDQwjNuL2T8KoVKFE9U3msti6/zi0932BFs8sHLQ+8Fo/12ITY0MkNN1aOxxavf4XbwMxDPd6NxktEcEJBEHmx91hQZVkSbL0N7FWpMb21oytlh+aImlLhlMbPbDKNMGJq7Nznr+/dAPBeYmVlUA18UstVB6xw6/V90OxNfxewMvndhOCrJz1P9WozPPs5zWIHks0kZxvFs/r54iE6UqCkBFC7ndejf0k=
-#  on:
-#    tags: true
-#    repo: thesimj/envyaml
-#    python: '3.6'
+deploy:
+  provider: pypi
+  distributions: "sdist bdist_wheel"
+  user: ${PYPI_USERNAME}
+  password: ${PYPI_PASSWORD}
+  on:
+    python: '3.6'
+    branch: master
+    repo: thesimj/envyaml
