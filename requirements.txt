@@ -1,4 +1,5 @@
 PyYAML
 pytest
 pytest-cov
+wheel
 

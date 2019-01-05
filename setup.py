@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 from setuptools import setup
 
-with open("README.md", "r") as fh:
-    long_description = fh.read()
+with open("README.md", "r") as f:
+    long_description = f.read()
 
 setup(
     name='envyaml',
@@ -22,6 +22,8 @@ setup(
     classifiers=[
         'Operating System :: OS Independent',
         'License :: OSI Approved :: MIT License',
+        'Topic :: Utilities',
+        'Intended Audience :: Developers',
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
         'Topic :: Software Development :: Libraries :: Python Modules',
