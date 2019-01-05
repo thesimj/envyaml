@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
 from setuptools import setup
 
+with open("README.md", "r") as fh:
+    long_description = fh.read()
+
 setup(
     name='envyaml',
     packages=['envyaml'],
@@ -9,14 +12,16 @@ setup(
     license='MIT',
     author='Mykola Bubelich',
     author_email='',
-    description='Simple YAML configuration file parser',
+    description='Simple YAML configuration file parser with easy access for structured data',
     install_requires=['PyYAML'],
     python_requires='>=3.6',
     platforms='any',
     test_suite='tests',
+    long_description=long_description,
+    long_description_content_type="text/markdown",
     classifiers=[
         'Operating System :: OS Independent',
-        'Programming Language :: Python',
+        'License :: OSI Approved :: MIT License',
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
         'Topic :: Software Development :: Libraries :: Python Modules',
