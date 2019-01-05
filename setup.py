@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from setuptools import setup
+from setuptools import setup, find_packages
 
 from envyaml import __version__
 
@@ -8,7 +8,7 @@ with open("README.md", "r") as f:
 
 setup(
     name='envyaml',
-    packages=['envyaml'],
+    packages=find_packages(),
     version=__version__,
     url='https://github.com/thesimj/envyaml',
     license='MIT',
@@ -17,6 +17,7 @@ setup(
     description='Simple YAML configuration file parser with easy access for structured data',
     install_requires=['PyYAML'],
     python_requires='>=3.6',
+    include_package_data=True,
     platforms='any',
     test_suite='tests',
     long_description=long_description,
