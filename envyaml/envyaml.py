@@ -27,7 +27,7 @@ from yaml import safe_load
 
 
 class EnvYAML:
-    __version__: str = '0.1901-rc1'
+    __version__: str = '0.1901-rc2'
 
     separator: str = '__'
     file_path: str = None

@@ -1,3 +1,3 @@
 from .envyaml import EnvYAML
 
-__version__ = '0.1901-rc1'
+__version__ = '0.1901-rc2'
