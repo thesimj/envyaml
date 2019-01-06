@@ -13,7 +13,7 @@ setup(
     url='https://github.com/thesimj/envyaml',
     license='MIT',
     author='Mykola Bubelich',
-    author_email='thesimj@users.noreply.github.com',
+    author_email='projects@bubelich.com',
     description='Simple YAML configuration file parser with easy access for structured data',
     install_requires=['PyYAML'],
     python_requires='>=3.6',
@@ -27,8 +27,8 @@ setup(
         'License :: OSI Approved :: MIT License',
         'Topic :: Utilities',
         'Intended Audience :: Developers',
+        'Topic :: Software Development :: Libraries :: Python Modules',
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
-        'Topic :: Software Development :: Libraries :: Python Modules',
     ]
 )

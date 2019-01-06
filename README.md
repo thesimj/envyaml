@@ -76,6 +76,11 @@ print(env.database__host)
 print(env.database__table__user)
 
 # >> table_user
+
+# access list items by number
+print(env.list_test__0)
+
+# >> one
 ```
 
 access config parameters with key option `['name']`

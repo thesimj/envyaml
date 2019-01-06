@@ -22,49 +22,44 @@
 
 
 import os
+from typing import Optional
 
 from yaml import safe_load
 
-__version__ = '0.1901'
+__version__ = '0.1902'
 
 
 class EnvYAML:
     __version__: str = __version__
 
-    separator: str = '__'
-    file_path: str = None
+    DEFAULT_ENV_YAML_FILE: str = 'env.yaml'
+    DEFAULT_ENV_FILE: str = '.env'
 
-    __env_path: str = 'env.yaml'
+    __env_file: str = None
+    __yaml_file: str = None
     __config_raw: dict = {}
     __config: dict = {}
+    __separator: str = '__'
 
-    def __init__(self, file_path: str = None, separator: str = '__'):
+    def __init__(self, yaml_file: str = None, env_file: str = None, separator: str = '__'):
         """Create EnvYAML class instance and read content from file
 
-        :param file_path: file path for config or env.yaml by default
+        :param yaml_file: file path for config or env.yaml by default
         :param separator: use separator for path levels
         """
-        self.__env_path = self.__get_file_path(file_path)
-        self.separator = separator
+        self.__yaml_file = yaml_file
+        self.__env_file = env_file
+        self.__separator = separator
 
-        # read and parse files
-        if os.path.exists(self.__env_path):
-            with open(self.__env_path) as f:
-                # expand env vars
-                self.__config_raw = safe_load(os.path.expandvars(f.read()))
+        # get env file and read
+        env_config: dict = self.__read_env_file(self.__get_file_path(env_file, 'ENV_FILE', self.DEFAULT_ENV_FILE))
+        yaml_config: dict = self.__read_yaml_file(self.__get_file_path(yaml_file, 'ENV_YAML_FILE', self.DEFAULT_ENV_YAML_FILE))
 
-                # make it flat
-                if self.__config_raw:
-                    self.__config = self.__dict_flat(self.__config_raw)
+        # compose raw config
+        self.__config_raw = {**env_config, **yaml_config}
 
-                # set config file path
-                self.file_path = self.__env_path
-
-                # exit with new class instance
-                return
-
-        # raise error when file not found
-        raise FileNotFoundError('No such config files')
+        # compose config
+        self.__config = self.__dict_flat(self.__config_raw)
 
     def get(self, key: str, default: any = None) -> any:
         """Get config variable with default value. If no `default` value set use None
@@ -85,14 +80,41 @@ class EnvYAML:
         """
         return self.__config_raw.copy()
 
-    def __get_file_path(self, file_path: str = None) -> str:
+    @staticmethod
+    def __read_env_file(file_path: str):
+        config: dict = {}
+
+        if file_path:
+            with open(file_path) as f:
+                for line in f.readlines():  # type:str
+                    name, value = line.strip().split('=', 1)
+                    # set environ
+                    os.environ[name] = value
+                    # set local config
+                    config[name] = value
+
+        return config
+
+    @staticmethod
+    def __read_yaml_file(file_path: str) -> dict:
+        # read and parse files
+        with open(file_path) as f:
+            # expand env vars
+            return safe_load(os.path.expandvars(f.read()))
+
+    @staticmethod
+    def __get_file_path(file_path: str, env_name: str, default: str) -> Optional[str]:
         if file_path:
             return file_path
 
-        elif os.environ.get('ENV_YAML_FILE'):
-            return os.environ.get('ENV_YAML_FILE')
+        elif os.environ.get(env_name):
+            return os.environ.get(env_name)
 
-        return self.__env_path
+        elif os.path.exists(default):
+            return default
+
+        # if file not found, then none
+        return None
 
     def __dict_flat(self, config: any, deep: [str] = None) -> dict:
         dest_: dict = {}
@@ -110,7 +132,7 @@ class EnvYAML:
                     dest_.update(self.__dict_flat(dict(enumerate(value_)), deep=[key_]))
             else:
                 if deep:
-                    dest_[str.join(self.separator, deep + [key_])] = value_
+                    dest_[str.join(self.__separator, deep + [key_])] = value_
                 else:
                     dest_[key_] = value_
 
