@@ -7,8 +7,7 @@ python:
 install:
   - pip install -U pip
   - pip install python-coveralls
-  - pip install -q -r requirements.txt
-  - pip install --editable .
+  - pip install -r requirements.txt
 script:
   - pytest -v --tb=native --cov
 after_success:

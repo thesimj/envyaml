@@ -16,7 +16,7 @@ setup(
     author_email='projects@bubelich.com',
     description='Simple YAML configuration file parser with easy access for structured data',
     install_requires=['PyYAML'],
-    python_requires='>=3.6',
+    python_requires='>=2.7',
     include_package_data=True,
     platforms='any',
     test_suite='tests',
@@ -28,6 +28,9 @@ setup(
         'Topic :: Utilities',
         'Intended Audience :: Developers',
         'Topic :: Software Development :: Libraries :: Python Modules',
+        'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
     ]
