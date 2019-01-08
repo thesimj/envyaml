@@ -19,70 +19,109 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-
-
 import os
-from typing import Optional
 
 from yaml import safe_load
 
-__version__ = '0.1902'
+__version__ = '0.1903'
 
 
-class EnvYAML:
-    __version__: str = __version__
+class YDict:
+    def __init__(self, dictionary):
+        """Create YDict instance based on `dict`
 
-    DEFAULT_ENV_YAML_FILE: str = 'env.yaml'
-    DEFAULT_ENV_FILE: str = '.env'
-
-    __env_file: str = None
-    __yaml_file: str = None
-    __config_raw: dict = {}
-    __config: dict = {}
-    __separator: str = '__'
-
-    def __init__(self, yaml_file: str = None, env_file: str = None, separator: str = '__'):
-        """Create EnvYAML class instance and read content from file
-
-        :param yaml_file: file path for config or env.yaml by default
-        :param separator: use separator for path levels
+        :type dictionary: dict
+        :rtype: YDict
         """
-        self.__yaml_file = yaml_file
-        self.__env_file = env_file
-        self.__separator = separator
+        self.__data = dictionary
 
-        # get env file and read
-        env_config: dict = self.__read_env_file(self.__get_file_path(env_file, 'ENV_FILE', self.DEFAULT_ENV_FILE))
-        yaml_config: dict = self.__read_yaml_file(self.__get_file_path(yaml_file, 'ENV_YAML_FILE', self.DEFAULT_ENV_YAML_FILE))
+    def __getattr__(self, item):
+        attr = self.__data[item]
 
-        # compose raw config
-        self.__config_raw = {**env_config, **yaml_config}
+        if isinstance(attr, dict):
+            return YDict(attr)
 
-        # compose config
-        self.__config = self.__dict_flat(self.__config_raw)
+        return self.__data[item]
 
-    def get(self, key: str, default: any = None) -> any:
-        """Get config variable with default value. If no `default` value set use None
+    def __getitem__(self, item):
+        return self.__data[item]
 
-        :param key: config key
-        :param default: value will be used when no key found
-        :return: value for config key or default value
-        :rtype any
+    def get(self, key, default=None):
+        """Get configuration variable with default value. If no `default` value set use None
+
+        :param key: name for the configuration key
+        :param default: default value if no key found
+        :type default: any
+        :type key: any
+        :rtype: any
         """
-        if key in self.__config:
-            return self.__config[key]
+        if key in self.__data:
+            return self.__data[key]
 
         return default
 
-    def export(self) -> dict:
+
+class EnvYAML:
+    __version__ = __version__
+
+    DEFAULT_ENV_YAML_FILE = 'env.yaml'
+    DEFAULT_ENV_FILE = '.env'
+
+    __env_file = None  # type:str
+    __yaml_file = None  # type: str
+    __config_raw = None  # type:dict
+    __config = None  # type:YDict
+
+    def __init__(self, yaml_file=None, env_file=None):
+        """Create EnvYAML class instance and read content from file
+
+        :param yaml_file: file path for config or env.yaml by default
+        :param env_file: file path for `.env` file or None by default
+        :type yaml_file: str
+        :type env_file: str
+        :rtype: EnvYAML
+        """
+        self.__yaml_file = yaml_file
+        self.__env_file = env_file
+
+        # get env file and read
+        env_config = self.__read_env_file(self.__get_file_path(env_file, 'ENV_FILE', self.DEFAULT_ENV_FILE))
+        yaml_config = self.__read_yaml_file(self.__get_file_path(yaml_file, 'ENV_YAML_FILE', self.DEFAULT_ENV_YAML_FILE))
+
+        # compose raw config
+        self.__config_raw = {}
+        self.__config_raw.update(env_config)
+        self.__config_raw.update(yaml_config)
+
+        # compose config
+        self.__config = YDict(self.__dict_flat(self.__config_raw))
+
+    def get(self, key, default=None):
+        """Get configuration variable with default value. If no `default` value set use None
+
+        :param key: name for the configuration key
+        :param default: default value if no key found
+        :type default: any
+        :type key: any
+        :rtype: any
+        """
+        return self.__config.get(key, default)
+
+    def export(self):
         """Export config
         :return: dict with config
+        :rtype: dict
         """
         return self.__config_raw.copy()
 
     @staticmethod
-    def __read_env_file(file_path: str):
-        config: dict = {}
+    def __read_env_file(file_path):
+        """read and parse env file
+
+        :type file_path: str
+        :rtype: dict
+        """
+        config = {}
 
         if file_path:
             with open(file_path) as f:
@@ -96,14 +135,27 @@ class EnvYAML:
         return config
 
     @staticmethod
-    def __read_yaml_file(file_path: str) -> dict:
+    def __read_yaml_file(file_path):
+        """read and parse yaml file
+
+        :type file_path: str
+        :rtype: dict
+        """
         # read and parse files
         with open(file_path) as f:
             # expand env vars
             return safe_load(os.path.expandvars(f.read()))
 
     @staticmethod
-    def __get_file_path(file_path: str, env_name: str, default: str) -> Optional[str]:
+    def __get_file_path(file_path, env_name, default):
+        """ construct file path
+
+        :rtype: str
+        :type file_path: str
+        :type env_name: str
+        :type default: str
+        :return: return file path or None if file not exists
+        """
         if file_path:
             return file_path
 
@@ -113,11 +165,14 @@ class EnvYAML:
         elif os.path.exists(default):
             return default
 
-        # if file not found, then none
-        return None
+    def __dict_flat(self, config, deep=None):
+        """ Flat dictionaries in recursive way
 
-    def __dict_flat(self, config: any, deep: [str] = None) -> dict:
-        dest_: dict = {}
+        :rtype: dict
+        :type config: dict
+        :type deep: [str]
+        """
+        dest_ = {}
         for key_, value_ in config.items():
             key_ = str(key_)
             if isinstance(value_, dict):
@@ -125,21 +180,36 @@ class EnvYAML:
                     dest_.update(self.__dict_flat(value_, deep=deep + [key_]))
                 else:
                     dest_.update(self.__dict_flat(value_, deep=[key_]))
-            if isinstance(value_, list):
+            if isinstance(value_, list) or isinstance(value_, tuple):
                 if deep:
                     dest_.update(self.__dict_flat(dict(enumerate(value_)), deep=deep + [key_]))
                 else:
+                    dest_.update({key_: value_})
                     dest_.update(self.__dict_flat(dict(enumerate(value_)), deep=[key_]))
             else:
                 if deep:
-                    dest_[str.join(self.__separator, deep + [key_])] = value_
+                    dest_[str.join('.', deep + [key_])] = value_
                 else:
                     dest_[key_] = value_
 
         return dest_
 
-    def __getattr__(self, name: str) -> any:
-        return self.__config[name]
+    def __getattr__(self, name):
+        """ Get as attribute .name
+
+        :rtype: any
+        :type name: str
+        """
+        return self.__config.__getattr__(name)
 
     def __getitem__(self, item):
-        return self.__config[item]
+        """ Get item ['item']
+
+        :rtype: str
+        :type item: str
+        """
+        return self.__config.__getitem__(item)
+
+
+# export only this
+__all__ = [__version__, EnvYAML]

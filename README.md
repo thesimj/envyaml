@@ -68,30 +68,30 @@ print(env.database)
 # }
 
 # access database host value as properties name
-print(env.database__host)
+print(env.database.host)
 
 # >> xxx.xxx.xxx.xxx
 
 # access database user table value as properties name
-print(env.database__table__user)
+print(env.database.table.user)
 
 # >> table_user
 
 # access list items by number
-print(env.list_test__0)
+print(env.list_test[0])
 
 # >> one
 ```
 
 access config parameters with key option `['name']`
 ```python
-print(env['database__port'])
+print(env['database.port'])
 # >> 3301
 ```
 
 access config with `get` function and default value
 ```python
-print(env.get('not__exist__value', 'default'))
+print(env.get('not.exist.value', 'default'))
 # >> default
 ```
 

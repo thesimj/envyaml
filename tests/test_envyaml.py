@@ -4,7 +4,7 @@ import os
 
 import pytest
 
-from envyaml.envyaml import EnvYAML
+from envyaml import EnvYAML
 
 # set os env
 os.environ['TEST_ENV'] = 'test-env'
@@ -13,36 +13,30 @@ os.environ['TEST_ENV'] = 'test-env'
 def test_it_should_read_env_file():
     config = EnvYAML('tests/env.test.yaml', env_file='tests/test.env')
 
-    assert config.env_file__project__name == 'project-x-42'
+    assert config.env_file.project.name == 'project-x-42'
 
 
 def test_it_should_read_custom_file():
     config = EnvYAML('tests/env.test.yaml')
 
     # access by property name
-    assert config.one__two__three__value == "one-two-three-value"
+    assert config.one.two.three.value == "one-two-three-value"
     # access by item name
-    assert config['one__two__three__value'] == "one-two-three-value"
+    assert config['one.two.three.value'] == "one-two-three-value"
     # access list item
-    assert config.list_test__0 == 'one'
+    assert config.list_test[0] == 'one'
     # access list item (array)
-    assert config['list_test__0'] == 'one'
+    assert config['list_test.0'] == 'one'
 
 
 def test_it_should_populate_env_variable():
     config = EnvYAML('tests/env.test.yaml')
 
-    assert config.config__test_env == os.environ['TEST_ENV']
-
-
-def test_it_should_work_with_custom_separator():
-    config = EnvYAML('tests/env.test.yaml', separator=':')
-
-    assert config['one:two:three:value'] == "one-two-three-value"
+    assert config.config.test_env == os.environ['TEST_ENV']
 
 
 def test_it_should_return_dict_on_export():
-    config = EnvYAML('tests/env.test.yaml', separator=':')
+    config = EnvYAML('tests/env.test.yaml')
 
     assert isinstance(config.export(), dict) and len(config.export()) >= 4
 
@@ -54,7 +48,7 @@ def test_is_should_read_config_from_env_variable():
 
     config = EnvYAML()
 
-    assert config.env_file__project__name == 'project-x-42'
+    assert config.env_file.project.name == 'project-x-42'
     assert isinstance(config.export(), dict) and len(config.export()) >= 4
 
 
@@ -66,14 +60,22 @@ def test_is_should_raise_exception_when_file_not_found():
 def test_is_should_use_default_value():
     config = EnvYAML('tests/env.test.yaml')
 
-    assert config.get('not__exist__key') is None
-    assert config.get('not__exist__key', 'default') == 'default'
-    assert config.get('config__test') == 100
+    assert config.get('not.exist.key') is None
+    assert config.get('not.exist.key', 'default') == 'default'
+    assert config.get('config.test') == 100
 
 
 def test_is_should_get_lists_values_by_number():
     config = EnvYAML('tests/env.test.yaml')
 
-    assert config.list_test__0 == 'one'
-    assert config.list_test__1 == 'two'
-    assert config.list_test__2 == 'tree'
+    assert config.list_test[0] == 'one'
+    assert config.list_test[1] == 'two'
+    assert config.list_test[2] == 'tree'
+
+    assert config.get('list_test.0') == 'one'
+    assert config.get('list_test.1') == 'two'
+    assert config.get('list_test.2') == 'tree'
+
+    assert config['list_test.0'] == 'one'
+    assert config['list_test.1'] == 'two'
+    assert config['list_test.2'] == 'tree'
