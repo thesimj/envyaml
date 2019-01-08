@@ -14,6 +14,24 @@ def test_it_should_read_env_file():
     config = EnvYAML('tests/env.test.yaml', env_file='tests/test.env')
 
     assert config.env_file.project.name == 'project-x-42'
+    assert config.USERNAME == 'env-username'
+    assert config.PASSWORD == 'env-password-with-escape'
+    assert config.PASSWORD_WE == 'env-password-without-escape'
+    assert config.EMPTY == ''
+
+    # Test wrong names, should be not found and raise KeyErro
+    with pytest.raises(KeyError):
+        assert config['01sre']
+
+    with pytest.raises(KeyError):
+        assert config['!dtdrthkj']
+
+    with pytest.raises(KeyError):
+        assert config['$WRONG_NAME']
+
+    # Config from comment
+    with pytest.raises(KeyError):
+        assert config['comments']
 
 
 def test_it_should_read_custom_file():
