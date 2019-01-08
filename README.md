@@ -2,9 +2,9 @@
 Simple YAML configuration file parser with easy access for structured data
 
 ### Why
-Modern configuration file become to be more complex, flexible and readable. 
-YAML file format are perfect to store configuration file but had no option to pass environment variables.
-This project try to simplify usage YAML file and environment variables as program configuration file with easy config key access.  
+Modern configuration file become to be more and more complex, flexible and readable. 
+YAML file format are perfect to store configuration, but had no option to pass environment variables. They give flexibility, readability and provide option to store complex data structure.
+This project aim to simplify usage of the YAML file and environment variables as program configuration file with easy config key access.  
 
 ### Install
 ```bash
@@ -16,6 +16,9 @@ Let's assume we had a project with this config file `env.yaml`
 
 ```yaml
 # env.yaml
+project:
+  name: "${PROJECT_NAME}-${PROJECT_ID}"
+
 database:
     host: $DATABASE_HOST
     port: 3301
@@ -38,9 +41,11 @@ redis:
 
 and environment variables set to
 ```
-$DATABASE_HOST=xxx.xxx.xxx.xxx
-$DATABASE_PASSWORD=super-secret-password
-$REDIS_PREFIX=state
+PROJECT_NAME=simple-hello
+PROJECT_ID=42
+DATABASE_HOST=xxx.xxx.xxx.xxx
+DATABASE_PASSWORD=super-secret-password
+REDIS_PREFIX=state
 ```
 
 parse file with `EnvYAML`
@@ -50,6 +55,11 @@ from envyaml import EnvYAML
 
 # read file env.yaml and parse config
 env = EnvYAML('env.yaml')
+
+# access project name
+print(env.project.name)
+
+# >> simple-hello-42
 
 # access whole database section
 print(env.database)
