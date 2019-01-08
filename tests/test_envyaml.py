@@ -53,7 +53,7 @@ def test_is_should_read_config_from_env_variable():
 
 
 def test_is_should_raise_exception_when_file_not_found():
-    with pytest.raises(FileNotFoundError):
+    with pytest.raises(IOError):
         EnvYAML('tests/env.notfound.yaml')
 
 
