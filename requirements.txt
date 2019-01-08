@@ -1,5 +1,5 @@
 PyYAML
-pytest
+pytest>=3.9
 pytest-cov
 wheel
-twine
+
