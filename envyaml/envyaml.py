@@ -23,7 +23,7 @@ import os
 
 from yaml import safe_load
 
-__version__ = '0.1903'
+__version__ = '0.1904'
 
 
 class YDict:
@@ -126,11 +126,15 @@ class EnvYAML:
         if file_path:
             with open(file_path) as f:
                 for line in f.readlines():  # type:str
-                    name, value = line.strip().split('=', 1)
-                    # set environ
-                    os.environ[name] = value
-                    # set local config
-                    config[name] = value
+                    if line and line[0].isalpha() and ('=' in line):
+                        name, value = line.strip().split('=', 1)  # type: str,str
+                        # strip value
+                        value = value.strip().strip('\'\"')
+                        name = name.strip().strip('\'\"')
+                        # set environ
+                        os.environ[name] = value
+                        # set local config
+                        config[name] = value
 
         return config
 
