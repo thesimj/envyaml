@@ -1,4 +1,4 @@
-# EnvYAML | [![Latest Version](https://pypip.in/version/envyaml/badge.svg)](https://pypi.python.org/pypi/envyaml/) [![Build Status](https://travis-ci.com/thesimj/envyaml.svg?branch=master)](https://travis-ci.com/thesimj/envyaml) [![Coverage Status](https://coveralls.io/repos/github/thesimj/envyaml/badge.svg?branch=master)](https://coveralls.io/github/thesimj/envyaml?branch=master)
+# EnvYAML | [![Latest Version](https://pypip.in/version/envyaml/badge.svg)](https://pypi.python.org/pypi/envyaml/) [![Build Status](https://travis-ci.com/thesimj/envyaml.svg?branch=master)](https://travis-ci.com/thesimj/envyaml) [![Coverage Status](https://coveralls.io/repos/github/thesimj/envyaml/badge.svg?branch=master)](https://coveralls.io/github/thesimj/envyaml?branch=master) ![Versions](https://img.shields.io/pypi/pyversions/envyaml.svg) ![License](https://img.shields.io/pypi/l/envyaml.svg)
 Simple YAML configuration file parser with easy access for structured data
 
 ### Why
