@@ -65,6 +65,12 @@ def test_it_should_convert_config_to_dict():
     assert isinstance(dict(config.test), dict)
 
 
+def test_it_should_access_all_keys_in_config():
+    config = EnvYAML('tests/env.test.yaml')
+
+    assert len(config.keys()) > 10
+
+
 def test_is_should_read_config_from_env_variable():
     # Set env file
     os.environ['ENV_YAML_FILE'] = 'tests/env.test.yaml'

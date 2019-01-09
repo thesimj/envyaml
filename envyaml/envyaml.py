@@ -52,7 +52,7 @@ class YDict:
     def keys(self):
         """Set-like object providing a view on keys"""
         if isinstance(self.__data, dict):
-            self.__data.keys()
+            return self.__data.keys()
 
         return self.__data
 
@@ -209,6 +209,10 @@ class EnvYAML:
                     dest_[key_] = value_
 
         return dest_
+
+    def keys(self):
+        """Set-like object providing a view on keys"""
+        return self.__config.keys()
 
     def __getattr__(self, name):
         """ Get as attribute .name
