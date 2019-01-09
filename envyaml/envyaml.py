@@ -23,7 +23,7 @@ import os
 
 from yaml import safe_load
 
-__version__ = '0.1904'
+__version__ = '0.1905'
 
 
 class YDict:
@@ -34,17 +34,6 @@ class YDict:
         :rtype: YDict
         """
         self.__data = dictionary
-
-    def __getattr__(self, item):
-        attr = self.__data[item]
-
-        if isinstance(attr, dict):
-            return YDict(attr)
-
-        return self.__data[item]
-
-    def __getitem__(self, item):
-        return self.__data[item]
 
     def get(self, key, default=None):
         """Get configuration variable with default value. If no `default` value set use None
@@ -59,6 +48,24 @@ class YDict:
             return self.__data[key]
 
         return default
+
+    def keys(self):
+        """Set-like object providing a view on keys"""
+        if isinstance(self.__data, dict):
+            self.__data.keys()
+
+        return self.__data
+
+    def __getattr__(self, item):
+        attr = self.__data[item]
+
+        if isinstance(attr, dict):
+            return YDict(attr)
+
+        return self.__data[item]
+
+    def __getitem__(self, item):
+        return self.__data[item]
 
 
 class EnvYAML:
@@ -179,6 +186,11 @@ class EnvYAML:
         dest_ = {}
         for key_, value_ in config.items():
             key_ = str(key_)
+
+            # check for special words
+            if key_ in ['keys', 'get']:
+                raise ValueError('Wrong key name: "' + key_ + '" reserved word!')
+
             if isinstance(value_, dict):
                 if deep:
                     dest_.update(self.__dict_flat(value_, deep=deep + [key_]))

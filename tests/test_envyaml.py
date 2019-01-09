@@ -59,6 +59,12 @@ def test_it_should_return_dict_on_export():
     assert isinstance(config.export(), dict) and len(config.export()) >= 4
 
 
+def test_it_should_convert_config_to_dict():
+    config = EnvYAML('tests/env.test.yaml')
+
+    assert isinstance(dict(config.test), dict)
+
+
 def test_is_should_read_config_from_env_variable():
     # Set env file
     os.environ['ENV_YAML_FILE'] = 'tests/env.test.yaml'
