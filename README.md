@@ -57,12 +57,12 @@ from envyaml import EnvYAML
 env = EnvYAML('env.yaml')
 
 # access project name
-print(env.project.name)
+print(env['project.name'])
 
 # >> simple-hello-42
 
 # access whole database section
-print(env.database)
+print(env['database'])
 
 # {
 # 'database': 'test',
@@ -78,17 +78,17 @@ print(env.database)
 # }
 
 # access database host value as properties name
-print(env.database.host)
+print(env['database.host'])
 
 # >> xxx.xxx.xxx.xxx
 
 # access database user table value as properties name
-print(env.database.table.user)
+print(env['database.table.user'])
 
 # >> table_user
 
 # access list items by number
-print(env.list_test[0])
+print(env['list_test'][0])
 
 # >> one
 ```

@@ -23,49 +23,7 @@ import os
 
 from yaml import safe_load
 
-__version__ = '0.1905'
-
-
-class YDict:
-    def __init__(self, dictionary):
-        """Create YDict instance based on `dict`
-
-        :type dictionary: dict
-        :rtype: YDict
-        """
-        self.__data = dictionary
-
-    def get(self, key, default=None):
-        """Get configuration variable with default value. If no `default` value set use None
-
-        :param key: name for the configuration key
-        :param default: default value if no key found
-        :type default: any
-        :type key: any
-        :rtype: any
-        """
-        if key in self.__data:
-            return self.__data[key]
-
-        return default
-
-    def keys(self):
-        """Set-like object providing a view on keys"""
-        if isinstance(self.__data, dict):
-            return self.__data.keys()
-
-        return self.__data
-
-    def __getattr__(self, item):
-        attr = self.__data[item]
-
-        if isinstance(attr, dict):
-            return YDict(attr)
-
-        return self.__data[item]
-
-    def __getitem__(self, item):
-        return self.__data[item]
+__version__ = '0.1906'
 
 
 class EnvYAML:
@@ -77,7 +35,7 @@ class EnvYAML:
     __env_file = None  # type:str
     __yaml_file = None  # type: str
     __config_raw = None  # type:dict
-    __config = None  # type:YDict
+    __config = None  # type: dict
 
     def __init__(self, yaml_file=None, env_file=None):
         """Create EnvYAML class instance and read content from file
@@ -101,7 +59,7 @@ class EnvYAML:
         self.__config_raw.update(yaml_config)
 
         # compose config
-        self.__config = YDict(self.__dict_flat(self.__config_raw))
+        self.__config = self.__flat(self.__config_raw)
 
     def get(self, key, default=None):
         """Get configuration variable with default value. If no `default` value set use None
@@ -176,37 +134,52 @@ class EnvYAML:
         elif os.path.exists(default):
             return default
 
-    def __dict_flat(self, config, deep=None):
+    @staticmethod
+    def __flat_deep(prefix, config):
+        """Flat siblings
+
+        :type prefix: str
+        :type config: any
+        :rtype: dict
+        """
+        dest_ = {}
+
+        elements = enumerate(config) if (isinstance(config, list) or isinstance(config, tuple)) else config.items()  # type: (str, any)
+
+        for key_, value_ in elements:
+            key_ = prefix + '.' + str(key_)
+
+            if isinstance(value_, dict):
+                dest_[key_] = value_
+                dest_.update(EnvYAML.__flat_deep(key_, value_))
+
+            elif isinstance(value_, list):
+                dest_[key_] = value_
+                dest_.update(EnvYAML.__flat_deep(key_, value_))
+
+            else:
+                dest_[key_] = value_
+
+        return dest_
+
+    @staticmethod
+    def __flat(config):
         """ Flat dictionaries in recursive way
 
         :rtype: dict
         :type config: dict
-        :type deep: [str]
         """
         dest_ = {}
+
         for key_, value_ in config.items():
             key_ = str(key_)
 
-            # check for special words
-            if key_ in ['keys', 'get']:
-                raise ValueError('Wrong key name: "' + key_ + '" reserved word!')
+            if isinstance(value_, dict) or isinstance(value_, list) or isinstance(value_, type):
+                dest_[key_] = value_
+                dest_.update(EnvYAML.__flat_deep(key_, value_))
 
-            if isinstance(value_, dict):
-                if deep:
-                    dest_.update(self.__dict_flat(value_, deep=deep + [key_]))
-                else:
-                    dest_.update(self.__dict_flat(value_, deep=[key_]))
-            if isinstance(value_, list) or isinstance(value_, tuple):
-                if deep:
-                    dest_.update(self.__dict_flat(dict(enumerate(value_)), deep=deep + [key_]))
-                else:
-                    dest_.update({key_: value_})
-                    dest_.update(self.__dict_flat(dict(enumerate(value_)), deep=[key_]))
             else:
-                if deep:
-                    dest_[str.join('.', deep + [key_])] = value_
-                else:
-                    dest_[key_] = value_
+                dest_[key_] = value_
 
         return dest_
 
@@ -214,21 +187,13 @@ class EnvYAML:
         """Set-like object providing a view on keys"""
         return self.__config.keys()
 
-    def __getattr__(self, name):
-        """ Get as attribute .name
-
-        :rtype: any
-        :type name: str
-        """
-        return self.__config.__getattr__(name)
-
     def __getitem__(self, item):
         """ Get item ['item']
 
-        :rtype: str
+        :rtype: any
         :type item: str
         """
-        return self.__config.__getitem__(item)
+        return self.__config[item]
 
 
 # export only this
