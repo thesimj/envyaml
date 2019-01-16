@@ -77,12 +77,12 @@ print(env['database'])
 # 'username': 'username'
 # }
 
-# access database host value as properties name
+# access database host value as key item
 print(env['database.host'])
 
 # >> xxx.xxx.xxx.xxx
 
-# access database user table value as properties name
+# access database user table value as key item
 print(env['database.table.user'])
 
 # >> table_user
@@ -91,12 +91,12 @@ print(env['database.table.user'])
 print(env['list_test'][0])
 
 # >> one
-```
 
-access config parameters with key option `['name']`
-```python
-print(env['database.port'])
-# >> 3301
+# access list items by number as key 
+print(env['list_test.1'])
+
+# >> two
+
 ```
 
 access config with `get` function and default value
