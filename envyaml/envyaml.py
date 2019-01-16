@@ -22,8 +22,9 @@
 import os
 
 from yaml import safe_load
+from collections.abc import MutableMapping
 
-__version__ = '0.1906'
+__version__ = '0.1907'
 
 
 class EnvYAML:
@@ -37,13 +38,15 @@ class EnvYAML:
     __config_raw = None  # type:dict
     __config = None  # type: dict
 
-    def __init__(self, yaml_file=None, env_file=None):
-        """Create EnvYAML class instance and read content from file
+    def __init__(self, yaml_file=None, env_file=None, include_environment=True):
+        """Create EnvYAML class instance and read content from environment and files if they exists
 
         :param yaml_file: file path for config or env.yaml by default
-        :param env_file: file path for `.env` file or None by default
+        :param env_file: file path for .env file or None by default
+        :param include_environment: include environment variable, by default true
         :type yaml_file: str
         :type env_file: str
+        :type include_environment: bool
         :rtype: EnvYAML
         """
         self.__yaml_file = yaml_file
@@ -54,7 +57,7 @@ class EnvYAML:
         yaml_config = self.__read_yaml_file(self.__get_file_path(yaml_file, 'ENV_YAML_FILE', self.DEFAULT_ENV_YAML_FILE))
 
         # compose raw config
-        self.__config_raw = {}
+        self.__config_raw = dict(os.environ) if include_environment else {}
         self.__config_raw.update(env_config)
         self.__config_raw.update(yaml_config)
 
@@ -74,10 +77,20 @@ class EnvYAML:
 
     def export(self):
         """Export config
+
         :return: dict with config
         :rtype: dict
         """
         return self.__config_raw.copy()
+
+    @staticmethod
+    def environ():
+        """Get os.environ mapping object
+
+        :rtype: MutableMapping
+        :return: A mapping object representing the string environment
+        """
+        return os.environ
 
     @staticmethod
     def __read_env_file(file_path):
@@ -117,7 +130,7 @@ class EnvYAML:
 
     @staticmethod
     def __get_file_path(file_path, env_name, default):
-        """ construct file path
+        """Construct file path
 
         :rtype: str
         :type file_path: str
@@ -164,7 +177,7 @@ class EnvYAML:
 
     @staticmethod
     def __flat(config):
-        """ Flat dictionaries in recursive way
+        """Flat dictionaries in recursive way
 
         :rtype: dict
         :type config: dict

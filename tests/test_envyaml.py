@@ -49,6 +49,32 @@ def test_it_should_read_custom_file():
     assert isinstance(env['keys'], dict) and len(env['keys']) == 2
 
 
+def test_it_should_access_environment_variables():
+    os.environ['ENV_VAR'] = 'test-env-var'
+
+    env = EnvYAML()
+
+    assert env['ENV_VAR'] == 'test-env-var'
+
+
+def test_it_should_fail_when_access_environment_variables():
+    os.environ['ENV_VAR'] = 'test-env-var'
+
+    env = EnvYAML(include_environment=False)
+
+    with pytest.raises(KeyError):
+        assert env['ENV_VAR'] == 'test-env-var'
+
+
+def test_it_should_access_environ():
+    os.environ['ENV_VAR'] = 'test-env-var'
+
+    env = EnvYAML()
+
+    assert env.environ() == os.environ
+    assert env.environ()['ENV_VAR'] == os.environ['ENV_VAR']
+
+
 def test_it_should_read_default_file():
     env = EnvYAML()
 
