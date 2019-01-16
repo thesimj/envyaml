@@ -24,7 +24,7 @@ import os
 from yaml import safe_load
 from collections import MutableMapping
 
-__version__ = '0.1907'
+__version__ = '0.1908'
 
 
 class EnvYAML:
