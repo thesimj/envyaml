@@ -22,7 +22,7 @@
 import os
 
 from yaml import safe_load
-from collections.abc import MutableMapping
+from collections import MutableMapping
 
 __version__ = '0.1907'
 
