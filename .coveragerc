@@ -1,6 +1,3 @@
 [run]
-source =
-    envyaml/*
-
-omit =
-    tests/*
+source = envyaml/
+omit = tests/*
