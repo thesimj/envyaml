@@ -19,12 +19,12 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
+
 import os
 
 from yaml import safe_load
-from collections import MutableMapping
 
-__version__ = '0.1908'
+__version__ = '0.1909'
 
 
 class EnvYAML:
@@ -41,13 +41,10 @@ class EnvYAML:
     def __init__(self, yaml_file=None, env_file=None, include_environment=True):
         """Create EnvYAML class instance and read content from environment and files if they exists
 
-        :param yaml_file: file path for config or env.yaml by default
-        :param env_file: file path for .env file or None by default
-        :param include_environment: include environment variable, by default true
-        :type yaml_file: str
-        :type env_file: str
-        :type include_environment: bool
-        :rtype: EnvYAML
+        :param str yaml_file: file path for config or env.yaml by default
+        :param str env_file: file path for .env file or None by default
+        :param bool include_environment: include environment variable, by default true
+        :return EnvYAML: new instance of EnvYAML
         """
         self.__yaml_file = yaml_file
         self.__env_file = env_file
@@ -67,19 +64,16 @@ class EnvYAML:
     def get(self, key, default=None):
         """Get configuration variable with default value. If no `default` value set use None
 
-        :param key: name for the configuration key
-        :param default: default value if no key found
-        :type default: any
-        :type key: any
-        :rtype: any
+        :param any key: name for the configuration key
+        :param any default: default value if no key found
+        :return any:
         """
         return self.__config.get(key, default)
 
     def export(self):
         """Export config
 
-        :return: dict with config
-        :rtype: dict
+        :return dict: dictionary with config
         """
         return self.__config_raw.copy()
 
@@ -87,8 +81,7 @@ class EnvYAML:
     def environ():
         """Get os.environ mapping object
 
-        :rtype: MutableMapping
-        :return: A mapping object representing the string environment
+        :return MutableMapping: A mapping object representing the string environment
         """
         return os.environ
 
@@ -96,8 +89,8 @@ class EnvYAML:
     def __read_env_file(file_path):
         """read and parse env file
 
-        :type file_path: str
-        :rtype: dict
+        :param str file_path: path to file
+        :return dict:
         """
         config = {}
 
@@ -120,8 +113,8 @@ class EnvYAML:
     def __read_yaml_file(file_path):
         """read and parse yaml file
 
-        :type file_path: str
-        :rtype: dict
+        :param str file_path: path to file
+        :return: dict
         """
         # read and parse files
         with open(file_path) as f:
@@ -132,11 +125,10 @@ class EnvYAML:
     def __get_file_path(file_path, env_name, default):
         """Construct file path
 
-        :rtype: str
-        :type file_path: str
-        :type env_name: str
-        :type default: str
-        :return: return file path or None if file not exists
+        :param str file_path: path to file
+        :param str env_name: env name
+        :param str default: default file path
+        :return str: return file path or None if file not exists
         """
         if file_path:
             return file_path
@@ -151,9 +143,9 @@ class EnvYAML:
     def __flat_deep(prefix, config):
         """Flat siblings
 
-        :type prefix: str
-        :type config: any
-        :rtype: dict
+        :param str prefix: prefix
+        :param any config: configuration
+        :return dict:
         """
         dest_ = {}
 
@@ -179,8 +171,8 @@ class EnvYAML:
     def __flat(config):
         """Flat dictionaries in recursive way
 
-        :rtype: dict
-        :type config: dict
+        :param dict config: configuration
+        :return dict:
         """
         dest_ = {}
 
@@ -203,8 +195,8 @@ class EnvYAML:
     def __getitem__(self, item):
         """ Get item ['item']
 
-        :rtype: any
-        :type item: str
+        :param str item: get environment name as item
+        :return any:
         """
         return self.__config[item]
 
