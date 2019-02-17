@@ -24,7 +24,7 @@ import os
 
 from yaml import safe_load
 
-__version__ = '0.1909'
+__version__ = '0.1910'
 
 
 class EnvYAML:
@@ -116,10 +116,18 @@ class EnvYAML:
         :param str file_path: path to file
         :return: dict
         """
-        # read and parse files
-        with open(file_path) as f:
-            # expand env vars
-            return safe_load(os.path.expandvars(f.read()))
+        if file_path:
+            # read and parse files
+            with open(file_path) as f:
+                # expand env vars
+                yaml = safe_load(os.path.expandvars(f.read()))
+
+                # if contains somethings
+                if yaml and isinstance(yaml, dict):
+                    return yaml
+
+        # by default return empty dict
+        return {}
 
     @staticmethod
     def __get_file_path(file_path, env_name, default):

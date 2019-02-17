@@ -11,27 +11,27 @@ os.environ['TEST_ENV'] = 'test-env'
 
 
 def test_it_should_read_env_file():
-    config = EnvYAML('tests/env.test.yaml', env_file='tests/test.env')
+    env = EnvYAML('tests/env.test.yaml', env_file='tests/test.env')
 
-    assert config['env_file.project.name'] == 'project-x-42'
-    assert config['USERNAME'] == 'env-username'
-    assert config['PASSWORD'] == 'env-password-with-escape'
-    assert config['PASSWORD_WE'] == 'env-password-without-escape'
-    assert config['EMPTY'] == ''
+    assert env['env_file.project.name'] == 'project-x-42'
+    assert env['USERNAME'] == 'env-username'
+    assert env['PASSWORD'] == 'env-password-with-escape'
+    assert env['PASSWORD_WE'] == 'env-password-without-escape'
+    assert env['EMPTY'] == ''
 
     # Test wrong names, should be not found and raise KeyErro
     with pytest.raises(KeyError):
-        assert config['01sre']
+        assert env['01sre']
 
     with pytest.raises(KeyError):
-        assert config['!dtdrthkj']
+        assert env['!dtdrthkj']
 
     with pytest.raises(KeyError):
-        assert config['$WRONG_NAME']
+        assert env['$WRONG_NAME']
 
     # Config from comment
     with pytest.raises(KeyError):
-        assert config['comments']
+        assert env['comments']
 
 
 def test_it_should_read_custom_file():
@@ -125,41 +125,62 @@ def test_it_should_access_keys_and_lists():
     assert env['keys_and_lists.two.1.super.one'] == 'one'
 
 
-def test_is_should_read_config_from_env_variable():
+def test_it_should_read_config_from_env_variable():
     # Set env file
     os.environ['ENV_YAML_FILE'] = 'tests/env.test.yaml'
     os.environ['ENV_FILE'] = 'tests/test.env'
 
-    config = EnvYAML()
+    env = EnvYAML()
 
-    assert config['env_file.project.name'] == 'project-x-42'
-    assert isinstance(config.export(), dict) and len(config.export()) >= 4
+    assert env['env_file.project.name'] == 'project-x-42'
+    assert isinstance(env.export(), dict) and len(env.export()) >= 4
 
 
-def test_is_should_raise_exception_when_file_not_found():
+def test_it_should_raise_exception_when_file_not_found():
     with pytest.raises(IOError):
         EnvYAML('tests/env.notfound.yaml')
 
 
-def test_is_should_use_default_value():
-    config = EnvYAML('tests/env.test.yaml')
+def test_it_should_use_default_value():
+    env = EnvYAML('tests/env.test.yaml')
 
-    assert config.get('not.exist.key') is None
-    assert config.get('not.exist.key', 'default') == 'default'
-    assert config.get('config.test') == 100
+    assert env.get('not.exist.key') is None
+    assert env.get('not.exist.key', 'default') == 'default'
+    assert env.get('config.test') == 100
 
 
-def test_is_should_get_lists_values_by_number():
-    config = EnvYAML('tests/env.test.yaml')
+def test_it_should_get_lists_values_by_number():
+    env = EnvYAML('tests/env.test.yaml')
 
-    assert config['list_test'][0] == 'one'
-    assert config['list_test'][1] == 'two'
-    assert config['list_test'][2] == 'tree'
+    assert env['list_test'][0] == 'one'
+    assert env['list_test'][1] == 'two'
+    assert env['list_test'][2] == 'tree'
 
-    assert config.get('list_test.0') == 'one'
-    assert config.get('list_test.1') == 'two'
-    assert config.get('list_test.2') == 'tree'
+    assert env.get('list_test.0') == 'one'
+    assert env.get('list_test.1') == 'two'
+    assert env.get('list_test.2') == 'tree'
 
-    assert config['list_test.0'] == 'one'
-    assert config['list_test.1'] == 'two'
-    assert config['list_test.2'] == 'tree'
+    assert env['list_test.0'] == 'one'
+    assert env['list_test.1'] == 'two'
+    assert env['list_test.2'] == 'tree'
+
+
+def test_it_should_not_fail_when_try_load_non_exist_default_file():
+    del os.environ['ENV_YAML_FILE']
+    del os.environ['ENV_FILE']
+
+    env = EnvYAML()
+
+    assert isinstance(env, EnvYAML)
+
+
+def test_it_should_not_fail_when_try_load_default_empty_yaml_file():
+    env = EnvYAML('tests/env.empty.yaml')
+
+    assert isinstance(env, EnvYAML)
+
+
+def test_it_should_not_fail_when_try_load_default_empty_dotenv_file():
+    env = EnvYAML(env_file='tests/test.empty.env')
+
+    assert isinstance(env, EnvYAML)
