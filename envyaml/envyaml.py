@@ -24,14 +24,14 @@ import os
 
 from yaml import safe_load
 
-__version__ = '0.1910'
+__version__ = "0.1910"
 
 
 class EnvYAML:
     __version__ = __version__
 
-    DEFAULT_ENV_YAML_FILE = 'env.yaml'
-    DEFAULT_ENV_FILE = '.env'
+    DEFAULT_ENV_YAML_FILE = "env.yaml"
+    DEFAULT_ENV_FILE = ".env"
 
     __env_file = None  # type:str
     __yaml_file = None  # type: str
@@ -50,8 +50,12 @@ class EnvYAML:
         self.__env_file = env_file
 
         # get env file and read
-        env_config = self.__read_env_file(self.__get_file_path(env_file, 'ENV_FILE', self.DEFAULT_ENV_FILE))
-        yaml_config = self.__read_yaml_file(self.__get_file_path(yaml_file, 'ENV_YAML_FILE', self.DEFAULT_ENV_YAML_FILE))
+        env_config = self.__read_env_file(
+            self.__get_file_path(env_file, "ENV_FILE", self.DEFAULT_ENV_FILE)
+        )
+        yaml_config = self.__read_yaml_file(
+            self.__get_file_path(yaml_file, "ENV_YAML_FILE", self.DEFAULT_ENV_YAML_FILE)
+        )
 
         # compose raw config
         self.__config_raw = dict(os.environ) if include_environment else {}
@@ -97,11 +101,11 @@ class EnvYAML:
         if file_path:
             with open(file_path) as f:
                 for line in f.readlines():  # type:str
-                    if line and line[0].isalpha() and ('=' in line):
-                        name, value = line.strip().split('=', 1)  # type: str,str
+                    if line and line[0].isalpha() and ("=" in line):
+                        name, value = line.strip().split("=", 1)  # type: str,str
                         # strip value
-                        value = value.strip().strip('\'\"')
-                        name = name.strip().strip('\'\"')
+                        value = value.strip().strip("'\"")
+                        name = name.strip().strip("'\"")
                         # set environ
                         os.environ[name] = value
                         # set local config
@@ -157,10 +161,14 @@ class EnvYAML:
         """
         dest_ = {}
 
-        elements = enumerate(config) if (isinstance(config, list) or isinstance(config, tuple)) else config.items()  # type: (str, any)
+        elements = (
+            enumerate(config)
+            if (isinstance(config, list) or isinstance(config, tuple))
+            else config.items()
+        )  # type: (str, any)
 
         for key_, value_ in elements:
-            key_ = prefix + '.' + str(key_)
+            key_ = prefix + "." + str(key_)
 
             if isinstance(value_, dict):
                 dest_[key_] = value_
@@ -187,7 +195,11 @@ class EnvYAML:
         for key_, value_ in config.items():
             key_ = str(key_)
 
-            if isinstance(value_, dict) or isinstance(value_, list) or isinstance(value_, type):
+            if (
+                isinstance(value_, dict)
+                or isinstance(value_, list)
+                or isinstance(value_, type)
+            ):
                 dest_[key_] = value_
                 dest_.update(EnvYAML.__flat_deep(key_, value_))
 
