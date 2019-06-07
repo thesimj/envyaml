@@ -37,6 +37,8 @@ redis:
     config:
       expire: 300
       prefix: $REDIS_PREFIX
+
+empty_env: $NOT_EXIST_ENV_VARIABLE
 ```
 
 and environment variables set to
@@ -103,6 +105,12 @@ access config with `get` function and default value
 ```python
 print(env.get('not.exist.value', 'default'))
 # >> default
+
+print(env.get('empty_env', 'default'))
+# >> default
+
+print(env['empty_env'])
+# >> None
 ```
 
 ### License

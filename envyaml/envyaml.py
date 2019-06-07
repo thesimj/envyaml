@@ -72,6 +72,10 @@ class EnvYAML:
         :param any default: default value if no key found
         :return any:
         """
+
+        if self.is_env_not_set(key):
+            return default
+
         return self.__config.get(key, default)
 
     def export(self):
@@ -208,17 +212,34 @@ class EnvYAML:
 
         return dest_
 
+    def is_env_not_set(self, key):
+        """Check if key value is actual set
+
+        :param key:
+        :return:
+        """
+
+        return (
+            key in self.__config
+            and isinstance(self.__config[key], str)
+            and "$" in self.__config[key]
+        )
+
     def keys(self):
         """Set-like object providing a view on keys"""
         return self.__config.keys()
 
-    def __getitem__(self, item):
+    def __getitem__(self, key):
         """ Get item ['item']
 
-        :param str item: get environment name as item
+        :param str key: get environment name as item
         :return any:
         """
-        return self.__config[item]
+
+        if self.is_env_not_set(key):
+            return None
+
+        return self.__config[key]
 
 
 # export only this

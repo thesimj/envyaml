@@ -75,6 +75,22 @@ def test_it_should_access_environ():
     assert env.environ()["ENV_VAR"] == os.environ["ENV_VAR"]
 
 
+def test_it_should_get_default_values():
+    env = EnvYAML("tests/env.test.yaml")
+
+    assert env.get("empty.novalues", "default") is None
+    assert env.get("empty.noenvvalue", "env-value") == "env-value"
+
+    assert env["empty.noenvvalue"] is None
+
+
+def test_it_should_raise_key_error_when_no_values():
+    env = EnvYAML("tests/env.test.yaml")
+
+    with pytest.raises(KeyError):
+        assert env["empty.no-value-at-all"]
+
+
 def test_it_should_read_default_file():
     env = EnvYAML()
 
