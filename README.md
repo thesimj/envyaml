@@ -2,9 +2,9 @@
 Simple YAML configuration file parser with easy access for structured data
 
 ### Why
-Modern configuration file become to be more and more complex, flexible and readable. 
+Modern configuration file become to be more and more complex, flexible and readable.
 YAML file format are perfect to store configuration, but had no option to pass environment variables. They give flexibility, readability and provide option to store complex data structure.
-This project aim to simplify usage of the YAML file and environment variables as program configuration file with easy config key access.  
+This project aim to simplify usage of the YAML file and environment variables as program configuration file with easy config key access.
 
 ### Install
 ```bash
@@ -25,7 +25,7 @@ database:
     username: username
     password: $DATABASE_PASSWORD
     database: test
-    
+
     table:
       user: table_user
       blog: table_blog
@@ -33,7 +33,7 @@ database:
 redis:
     host: $REDIS_HOST
     port: 5040
-    
+
     config:
       expire: 300
       prefix: $REDIS_PREFIX
@@ -73,7 +73,7 @@ print(env['database'])
 # 'port': 3301,
 # 'table':
 #   {
-#       'blog': 'table_blog', 
+#       'blog': 'table_blog',
 #       'user': 'table_user'
 #   },
 # 'username': 'username'
@@ -94,10 +94,15 @@ print(env['list_test'][0])
 
 # >> one
 
-# access list items by number as key 
+# access list items by number as key
 print(env['list_test.1'])
 
 # >> two
+
+# test if you have key
+print('redis.port' in env)
+
+# >> True
 
 ```
 

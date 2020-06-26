@@ -24,7 +24,7 @@ import os
 
 from yaml import safe_load
 
-__version__ = "0.1912"
+__version__ = "0.2060"
 
 
 class EnvYAML:
@@ -228,6 +228,14 @@ class EnvYAML:
     def keys(self):
         """Set-like object providing a view on keys"""
         return self.__config.keys()
+
+    def __contains__(self, item):
+        """ Check if key in configuration
+
+        :param any item: get
+        :return:
+        """
+        return item in self.__config
 
     def __getitem__(self, key):
         """ Get item ['item']

@@ -200,3 +200,12 @@ def test_it_should_not_fail_when_try_load_default_empty_dotenv_file():
     env = EnvYAML(env_file="tests/test.empty.env")
 
     assert isinstance(env, EnvYAML)
+
+
+def test_it_should_be_valid_in_check():
+    env = EnvYAML(env_file="tests/env.test.yaml")
+
+    if 'test.one' in env:
+        assert env['test.one'] == 123
+
+    assert 'test.not_exists' not in env
