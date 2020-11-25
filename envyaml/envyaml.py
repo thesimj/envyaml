@@ -21,49 +21,67 @@
 # SOFTWARE.
 
 import os
+import re
+import io
 
 from yaml import safe_load
 
-__version__ = "0.2060"
+RE_DOT_ENV = re.compile(r"^((?!\d)[\w\- ]+=.*)$", re.MULTILINE | re.UNICODE)
+RE_VAR = re.compile(r"\${?((?!\d+)[\w.|\-\"\']*)[}\'\"]?", re.MULTILINE | re.UNICODE)
+
+__version__ = "1.0.201125"
 
 
 class EnvYAML:
     __version__ = __version__
 
-    DEFAULT_ENV_YAML_FILE = "env.yaml"
-    DEFAULT_ENV_FILE = ".env"
+    DEFAULT_ENV_YAML_FILE = "env.yaml"  # type:str
+    DEFAULT_ENV_FILE = ".env"  # type:str
 
     __env_file = None  # type:str
     __yaml_file = None  # type: str
-    __config_raw = None  # type:dict
-    __config = None  # type: dict
+    __cfg = None  # type: dict
+    __strict = True  # type: bool
 
-    def __init__(self, yaml_file=None, env_file=None, include_environment=True):
+    def __init__(
+        self, yaml_file=None, env_file=None, include_environment=True, strict=True
+    ):
         """Create EnvYAML class instance and read content from environment and files if they exists
 
         :param str yaml_file: file path for config or env.yaml by default
         :param str env_file: file path for .env file or None by default
         :param bool include_environment: include environment variable, by default true
+        :param bool strict: use strict mode and throw exception when have unset variable, by default true
         :return EnvYAML: new instance of EnvYAML
         """
-        self.__yaml_file = yaml_file
+        self.__strict = strict
         self.__env_file = env_file
+        self.__yaml_file = yaml_file
 
-        # get env file and read
-        env_config = self.__read_env_file(
-            self.__get_file_path(env_file, "ENV_FILE", self.DEFAULT_ENV_FILE)
+        # read environment
+        self.__cfg = dict(os.environ) if include_environment else {}
+
+        # read .env file and update config
+        self.__cfg.update(
+            self.__read_env_file(
+                self.__get_file_path(env_file, "ENV_FILE", self.DEFAULT_ENV_FILE),
+                self.__strict,
+            )
         )
-        yaml_config = self.__read_yaml_file(
-            self.__get_file_path(yaml_file, "ENV_YAML_FILE", self.DEFAULT_ENV_YAML_FILE)
+
+        # read yaml file and update config
+        self.__cfg.update(
+            self.__read_yaml_file(
+                self.__get_file_path(
+                    yaml_file, "ENV_YAML_FILE", self.DEFAULT_ENV_YAML_FILE
+                ),
+                self.__cfg,
+                self.__strict,
+            )
         )
 
-        # compose raw config
-        self.__config_raw = dict(os.environ) if include_environment else {}
-        self.__config_raw.update(env_config)
-        self.__config_raw.update(yaml_config)
-
-        # compose config
-        self.__config = self.__flat(self.__config_raw)
+        # make config as flat dict with '.'
+        self.__cfg = self.__flat(self.__cfg)
 
     def get(self, key, default=None):
         """Get configuration variable with default value. If no `default` value set use None
@@ -73,17 +91,14 @@ class EnvYAML:
         :return any:
         """
 
-        if self.is_env_not_set(key):
-            return default
-
-        return self.__config.get(key, default)
+        return self.__cfg.get(key, default)
 
     def export(self):
         """Export config
 
         :return dict: dictionary with config
         """
-        return self.__config_raw.copy()
+        return self.__cfg.copy()
 
     @staticmethod
     def environ():
@@ -94,45 +109,73 @@ class EnvYAML:
         return os.environ
 
     @staticmethod
-    def __read_env_file(file_path):
+    def __read_env_file(file_path, strict=True):
         """read and parse env file
 
         :param str file_path: path to file
+        :param bool strict: strict mode
         :return dict:
         """
         config = {}
 
         if file_path:
-            with open(file_path) as f:
-                for line in f.readlines():  # type:str
-                    if line and line[0].isalpha() and ("=" in line):
-                        name, value = line.strip().split("=", 1)  # type: str,str
-                        # strip value
-                        value = value.strip().strip("'\"")
-                        name = name.strip().strip("'\"")
-                        # set environ
-                        os.environ[name] = value
-                        # set local config
-                        config[name] = value
+            with io.open(file_path, encoding="utf8") as f:
+                buff = f.read()  # type: str
+
+            for line in RE_DOT_ENV.findall(buff):
+                name, value = line.strip().split("=", 1)  # type: str,str
+
+                # strip names and values
+                name = name.strip().strip("'\"")
+                value = value.strip().strip("'\"")
+
+                # set config
+                config[name] = value
 
         return config
 
     @staticmethod
-    def __read_yaml_file(file_path):
+    def __read_yaml_file(file_path, cfg, strict, separator="|"):
         """read and parse yaml file
 
         :param str file_path: path to file
+        :param dict cfg: configuration variables (environ and .env)
+        :param bool strict: strict mode
         :return: dict
         """
-        if file_path:
-            # read and parse files
-            with open(file_path) as f:
-                # expand env vars
-                yaml = safe_load(os.path.expandvars(f.read()))
 
-                # if contains somethings
-                if yaml and isinstance(yaml, dict):
-                    return yaml
+        # read and parse files
+        with io.open(file_path, encoding="utf8") as f:
+            content = f.read()  # type:str
+
+        # fill variables and default values
+        for entry in RE_VAR.finditer(content):
+            match, group = entry.group(), entry.groups()[0]  # type: str, str
+
+            # if group exist then get group
+            kv = group if group else match[1:]  # type: str
+            var_name, var_default = (
+                kv.split(separator) if separator in kv else (kv, None)
+            )  # type: str, str
+
+            if var_name in cfg:
+                content = content.replace(match, cfg[var_name])
+
+            elif var_name not in cfg and var_default is not None:
+                content = content.replace(match, var_default)
+
+            else:
+                if strict:
+                    raise ValueError(
+                        "Strict mode enabled, variable $" + var_name + " not defined!"
+                    )
+
+        # load content as yaml
+        yaml = safe_load(content)
+
+        # if contains somethings
+        if yaml and isinstance(yaml, dict):
+            return yaml
 
         # by default return empty dict
         return {}
@@ -212,42 +255,26 @@ class EnvYAML:
 
         return dest_
 
-    def is_env_not_set(self, key):
-        """Check if key value is actual set
-
-        :param key:
-        :return:
-        """
-
-        return (
-            key in self.__config
-            and isinstance(self.__config[key], str)
-            and "$" in self.__config[key]
-        )
-
     def keys(self):
         """Set-like object providing a view on keys"""
-        return self.__config.keys()
+        return self.__cfg.keys()
 
     def __contains__(self, item):
-        """ Check if key in configuration
+        """Check if key in configuration
 
         :param any item: get
         :return:
         """
-        return item in self.__config
+        return item in self.__cfg
 
     def __getitem__(self, key):
-        """ Get item ['item']
+        """Get item ['item']
 
         :param str key: get environment name as item
         :return any:
         """
 
-        if self.is_env_not_set(key):
-            return None
-
-        return self.__config[key]
+        return self.__cfg[key]
 
 
 # export only this
