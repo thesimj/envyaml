@@ -248,6 +248,7 @@ def test_it_should_proper_complex_variable_2():
     os.environ['PROJECT_ID'] = 'x'
     os.environ['BAR'] = 'BAR'
     os.environ['PASSWORD'] = 'x'
+    os.environ['USERNAME'] = 'x'
 
     env = EnvYAML("tests/env.test.yaml")
 
@@ -258,13 +259,14 @@ def test_it_should_proper_complex_variable_2():
     del os.environ['PROJECT_ID']
     del os.environ['BAR']
     del os.environ['PASSWORD']
+    del os.environ['USERNAME']
 
 
 def test_it_should_be_read_if_strict_disabled():
     env = EnvYAML("tests/env.ignored.yaml", strict=False)
 
     assert env['env_file.config'] == '$ENV_CONFIG_VERSION'
-    assert env['env_file.project.password'] == 'password'
+    assert env['env_file.project.pwd'] == 'password'
     assert env['extra_a'] == '$DEFAULT_X'
 
 
