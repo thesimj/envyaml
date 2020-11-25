@@ -22,6 +22,7 @@
 
 import os
 import re
+import io
 
 from yaml import safe_load
 
@@ -114,7 +115,7 @@ class EnvYAML:
         config = {}
 
         if file_path:
-            with open(file_path, encoding='utf8') as f:
+            with io.open(file_path, encoding='utf8') as f:
                 buff = f.read()  # type: str
 
             for line in RE_DOT_ENV.findall(buff):
@@ -140,7 +141,7 @@ class EnvYAML:
         """
 
         # read and parse files
-        with open(file_path, encoding='utf8') as f:
+        with io.open(file_path, encoding='utf8') as f:
             content = f.read()  # type:str
 
         # fill variables and default values
