@@ -43,7 +43,9 @@ class EnvYAML:
     __cfg = None  # type: dict
     __strict = True  # type: bool
 
-    def __init__(self, yaml_file=None, env_file=None, include_environment=True, strict=True):
+    def __init__(
+        self, yaml_file=None, env_file=None, include_environment=True, strict=True
+    ):
         """Create EnvYAML class instance and read content from environment and files if they exists
 
         :param str yaml_file: file path for config or env.yaml by default
@@ -63,16 +65,18 @@ class EnvYAML:
         self.__cfg.update(
             self.__read_env_file(
                 self.__get_file_path(env_file, "ENV_FILE", self.DEFAULT_ENV_FILE),
-                self.__strict
+                self.__strict,
             )
         )
 
         # read yaml file and update config
         self.__cfg.update(
             self.__read_yaml_file(
-                self.__get_file_path(yaml_file, "ENV_YAML_FILE", self.DEFAULT_ENV_YAML_FILE),
+                self.__get_file_path(
+                    yaml_file, "ENV_YAML_FILE", self.DEFAULT_ENV_YAML_FILE
+                ),
                 self.__cfg,
-                self.__strict
+                self.__strict,
             )
         )
 
@@ -115,7 +119,7 @@ class EnvYAML:
         config = {}
 
         if file_path:
-            with io.open(file_path, encoding='utf8') as f:
+            with io.open(file_path, encoding="utf8") as f:
                 buff = f.read()  # type: str
 
             for line in RE_DOT_ENV.findall(buff):
@@ -131,7 +135,7 @@ class EnvYAML:
         return config
 
     @staticmethod
-    def __read_yaml_file(file_path, cfg, strict, separator='|'):
+    def __read_yaml_file(file_path, cfg, strict, separator="|"):
         """read and parse yaml file
 
         :param str file_path: path to file
@@ -141,7 +145,7 @@ class EnvYAML:
         """
 
         # read and parse files
-        with io.open(file_path, encoding='utf8') as f:
+        with io.open(file_path, encoding="utf8") as f:
             content = f.read()  # type:str
 
         # fill variables and default values
@@ -150,7 +154,9 @@ class EnvYAML:
 
             # if group exist then get group
             kv = group if group else match[1:]  # type: str
-            var_name, var_default = kv.split(separator) if separator in kv else (kv, None)  # type: str, str
+            var_name, var_default = (
+                kv.split(separator) if separator in kv else (kv, None)
+            )  # type: str, str
 
             if var_name in cfg:
                 content = content.replace(match, cfg[var_name])
@@ -160,7 +166,9 @@ class EnvYAML:
 
             else:
                 if strict:
-                    raise ValueError('Strict mode enabled, variable $' + var_name + ' not defined!')
+                    raise ValueError(
+                        "Strict mode enabled, variable $" + var_name + " not defined!"
+                    )
 
         # load content as yaml
         yaml = safe_load(content)
@@ -252,7 +260,7 @@ class EnvYAML:
         return self.__cfg.keys()
 
     def __contains__(self, item):
-        """ Check if key in configuration
+        """Check if key in configuration
 
         :param any item: get
         :return:
@@ -260,7 +268,7 @@ class EnvYAML:
         return item in self.__cfg
 
     def __getitem__(self, key):
-        """ Get item ['item']
+        """Get item ['item']
 
         :param str key: get environment name as item
         :return any:

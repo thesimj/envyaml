@@ -11,12 +11,14 @@ os.environ["TEST_ENV"] = "test-env"
 
 
 def test_it_should_return_default_value():
-    env = EnvYAML(yaml_file="tests/env.default.yaml", env_file='tests/test.env', strict=True)
+    env = EnvYAML(
+        yaml_file="tests/env.default.yaml", env_file="tests/test.env", strict=True
+    )
 
-    assert env['simple_d'] is None
-    assert env['simple_e'] == ""
-    assert env['config.complex'] == "xxxXyyy"
-    assert env['config.with_default'] == "DEFAULT"
+    assert env["simple_d"] is None
+    assert env["simple_e"] == ""
+    assert env["config.complex"] == "xxxXyyy"
+    assert env["config.with_default"] == "DEFAULT"
 
 
 def test_it_should_read_env_file():
@@ -44,7 +46,7 @@ def test_it_should_read_env_file():
 
 
 def test_it_should_read_custom_file():
-    env = EnvYAML("tests/env.test.yaml", env_file='tests/test.env')
+    env = EnvYAML("tests/env.test.yaml", env_file="tests/test.env")
 
     # access by property name
     assert env["one.two.three.value"] == "one-two-three-value"
@@ -91,7 +93,7 @@ def test_it_should_access_environ():
 
 
 def test_it_should_get_default_values():
-    env = EnvYAML("tests/env.test.yaml", env_file='tests/test.env')
+    env = EnvYAML("tests/env.test.yaml", env_file="tests/test.env")
 
     assert env.get("empty.novalues", "default") is None
     assert env.get("empty.noenvvalue", "env-value") == ""  # value actually set to ""
@@ -100,7 +102,7 @@ def test_it_should_get_default_values():
 
 
 def test_it_should_raise_key_error_when_no_values():
-    env = EnvYAML("tests/env.test.yaml", env_file='tests/test.env')
+    env = EnvYAML("tests/env.test.yaml", env_file="tests/test.env")
 
     with pytest.raises(KeyError):
         assert env["empty.no-value-at-all"]
@@ -120,31 +122,31 @@ def test_it_should_read_default_file():
 
 
 def test_it_should_populate_env_variable():
-    env = EnvYAML("tests/env.test.yaml", env_file='tests/test.env')
+    env = EnvYAML("tests/env.test.yaml", env_file="tests/test.env")
 
     assert env["config.test_env"] == os.environ["TEST_ENV"]
 
 
 def test_it_should_return_dict_on_export():
-    env = EnvYAML("tests/env.test.yaml", env_file='tests/test.env')
+    env = EnvYAML("tests/env.test.yaml", env_file="tests/test.env")
 
     assert isinstance(env.export(), dict) and len(env.export()) >= 4
 
 
 def test_it_should_convert_config_to_dict():
-    env = EnvYAML("tests/env.test.yaml", env_file='tests/test.env')
+    env = EnvYAML("tests/env.test.yaml", env_file="tests/test.env")
 
     assert isinstance(dict(env["test"]), dict)
 
 
 def test_it_should_access_all_keys_in_config():
-    env = EnvYAML("tests/env.test.yaml", env_file='tests/test.env')
+    env = EnvYAML("tests/env.test.yaml", env_file="tests/test.env")
 
     assert len(env.keys()) > 10
 
 
 def test_it_should_access_keys_and_lists():
-    env = EnvYAML("tests/env.test.yaml", env_file='tests/test.env')
+    env = EnvYAML("tests/env.test.yaml", env_file="tests/test.env")
 
     assert isinstance(env["keys_and_lists"], dict)
     assert isinstance(env["keys_and_lists.one"], list)
@@ -164,7 +166,7 @@ def test_it_should_read_config_from_env_variable():
     assert env["env_file.project.name"] == "project-x-42"
     assert isinstance(env.export(), dict) and len(env.export()) >= 4
 
-    del os.environ['ENV_YAML_FILE']
+    del os.environ["ENV_YAML_FILE"]
     del os.environ["ENV_FILE"]
 
 
@@ -174,7 +176,7 @@ def test_it_should_raise_exception_when_file_not_found():
 
 
 def test_it_should_use_default_value():
-    env = EnvYAML("tests/env.test.yaml", env_file='tests/test.env')
+    env = EnvYAML("tests/env.test.yaml", env_file="tests/test.env")
 
     assert env.get("not.exist.key") is None
     assert env.get("not.exist.key", "default") == "default"
@@ -182,7 +184,7 @@ def test_it_should_use_default_value():
 
 
 def test_it_should_get_lists_values_by_number():
-    env = EnvYAML("tests/env.test.yaml", env_file='tests/test.env')
+    env = EnvYAML("tests/env.test.yaml", env_file="tests/test.env")
 
     assert env["list_test"][0] == "one"
     assert env["list_test"][1] == "two"
@@ -198,10 +200,10 @@ def test_it_should_get_lists_values_by_number():
 
 
 def test_it_should_not_fail_when_try_load_non_exist_default_file():
-    if 'ENV_YAML_FILE' in os.environ:
+    if "ENV_YAML_FILE" in os.environ:
         del os.environ["ENV_YAML_FILE"]
 
-    if 'ENV_FILE' in os.environ:
+    if "ENV_FILE" in os.environ:
         del os.environ["ENV_FILE"]
 
     env = EnvYAML()
@@ -224,50 +226,53 @@ def test_it_should_not_fail_when_try_load_default_empty_dotenv_file():
 def test_it_should_be_valid_in_check():
     env = EnvYAML(env_file="tests/env.test.yaml")
 
-    if 'test.one' in env:
-        assert env['test.one'] == 123
+    if "test.one" in env:
+        assert env["test.one"] == 123
 
-    assert 'test.not_exists' not in env
+    assert "test.not_exists" not in env
 
 
 def test_it_should_proper_handle_dollar_sign_with_number():
-    env = EnvYAML("tests/env.test.yaml", env_file='tests/test.env')
+    env = EnvYAML("tests/env.test.yaml", env_file="tests/test.env")
 
-    assert env['sql'] == 'SELECT * FROM "users" WHERE "user" = $1 AND "login" = $2 AND "pwd" = $3'
+    assert (
+        env["sql"]
+        == 'SELECT * FROM "users" WHERE "user" = $1 AND "login" = $2 AND "pwd" = $3'
+    )
 
 
 def test_it_should_proper_complex_variable():
-    env = EnvYAML("tests/env.test.yaml", env_file='tests/test.env')
+    env = EnvYAML("tests/env.test.yaml", env_file="tests/test.env")
 
-    assert env['complex'] == 'xxxXyyy'
+    assert env["complex"] == "xxxXyyy"
 
 
 def test_it_should_proper_complex_variable_2():
     # initial setup
-    os.environ['PROJECT_NAME'] = 'x'
-    os.environ['PROJECT_ID'] = 'x'
-    os.environ['BAR'] = 'BAR'
-    os.environ['PASSWORD'] = 'x'
-    os.environ['USERNAME'] = 'x'
+    os.environ["PROJECT_NAME"] = "x"
+    os.environ["PROJECT_ID"] = "x"
+    os.environ["BAR"] = "BAR"
+    os.environ["PASSWORD"] = "x"
+    os.environ["USERNAME"] = "x"
 
     env = EnvYAML("tests/env.test.yaml")
 
-    assert env['complex'] == 'xxxBARyyy'
+    assert env["complex"] == "xxxBARyyy"
 
     # delete
-    del os.environ['PROJECT_NAME']
-    del os.environ['PROJECT_ID']
-    del os.environ['BAR']
-    del os.environ['PASSWORD']
-    del os.environ['USERNAME']
+    del os.environ["PROJECT_NAME"]
+    del os.environ["PROJECT_ID"]
+    del os.environ["BAR"]
+    del os.environ["PASSWORD"]
+    del os.environ["USERNAME"]
 
 
 def test_it_should_be_read_if_strict_disabled():
     env = EnvYAML("tests/env.ignored.yaml", strict=False)
 
-    assert env['env_file.config'] == '$ENV_CONFIG_VERSION'
-    assert env['env_file.project.pwd'] == 'password'
-    assert env['extra_a'] == '$DEFAULT_X'
+    assert env["env_file.config"] == "$ENV_CONFIG_VERSION"
+    assert env["env_file.project.pwd"] == "password"
+    assert env["extra_a"] == "$DEFAULT_X"
 
 
 def test_it_should_raise_exception_in_strict_mode():
