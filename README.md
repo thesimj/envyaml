@@ -30,9 +30,13 @@ database:
       user: table_user
       blog: table_blog
 
+    query: |-
+      SELECT * FROM "users" WHERE "user" = $1 AND "login" = $2 AND "pwd" = $3
+
 redis:
-    host: $REDIS_HOST
+    host: $REDIS_HOST|127.0.0.1
     port: 5040
+    db: $REDIS_DB|3 # with default value
 
     config:
       expire: 300
@@ -89,6 +93,22 @@ print(env['database.table.user'])
 
 # >> table_user
 
+# get sql query with $1,$2,$3 variables
+print(env['database.query'])
+
+# >> SELECT * FROM "users" WHERE "user" = $1 AND "login" = $2 AND "pwd" = $3
+
+# using default values if variable not defined
+# one example is redis host and redis port, when $REDIS_HOST not set then default value will be used
+print(env['redis.host'])
+
+# >> 127.0.0.1
+
+# one example is redis host and redis port, when $REDIS_DB not set then default value will be used
+print(env['redis.db'])
+
+# >> 3
+
 # access list items by number
 print(env['list_test'][0])
 
@@ -117,6 +137,12 @@ print(env.get('empty_env', 'default'))
 print(env['empty_env'])
 # >> None
 ```
+
+### Strict mode
+This mode is **enable by default** and prevent from declaring variables that
+not exist in `environment variables` or `.env` file. This leads to have runtime ValueError exception when variables
+not define with message `Strict mode enabled, variable $VAR not defined!`. To disable **strict** mode
+specify `strict=False` to EnvYAML object
 
 ### License
 MIT licensed. See the [LICENSE](LICENSE) file for more details.
