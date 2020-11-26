@@ -27,7 +27,7 @@ import io
 from yaml import safe_load
 
 RE_DOT_ENV = re.compile(r"^((?!\d)[\w\- ]+=.*)$", re.MULTILINE | re.UNICODE)
-RE_VAR = re.compile(r"\${?((?!\d+)[\w.|\-\"\']*)[}\'\"]?", re.MULTILINE | re.UNICODE)
+RE_VAR = re.compile(r"\${?((?!\d+)[\w. |\-\"\'/:=,]*)[}\'\"]?", re.MULTILINE | re.UNICODE)
 
 __version__ = "1.0.201125"
 
