@@ -258,6 +258,7 @@ def test_it_should_proper_complex_variable_2():
     env = EnvYAML("tests/env.test.yaml")
 
     assert env["complex"] == "xxxBARyyy"
+    assert env["code.ffmpeg"] == "ffmpeg -an -c:v libx264 -preset veryfast"
 
     # delete
     del os.environ["PROJECT_NAME"]
@@ -273,6 +274,11 @@ def test_it_should_be_read_if_strict_disabled():
     assert env["env_file.config"] == "$ENV_CONFIG_VERSION"
     assert env["env_file.project.pwd"] == "password"
     assert env["extra_a"] == "$DEFAULT_X"
+
+
+def test_it_should_return_proper_formatted_string():
+    env = EnvYAML("tests/env.test.yaml", env_file="tests/test.env")
+    assert env.format("format.test_a", key_1=1, key_2=2) == "1.2"
 
 
 def test_it_should_raise_exception_in_strict_mode():

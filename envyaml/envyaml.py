@@ -20,16 +20,25 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+import io
 import os
 import re
-import io
 
 from yaml import safe_load
 
+RE_COMMENTS = re.compile(r"(#.*\n)", re.MULTILINE | re.UNICODE)
 RE_DOT_ENV = re.compile(r"^((?!\d)[\w\- ]+=.*)$", re.MULTILINE | re.UNICODE)
-RE_VAR = re.compile(r"\${?((?!\d+)[\w. |\-\"\'/:=,]*)[}\'\"]?", re.MULTILINE | re.UNICODE)
 
-__version__ = "1.0.201125"
+RE_ENV = [
+    (re.compile(r"(?<=\$\{)(.*?)(?=\})", re.MULTILINE | re.UNICODE), ["${{{match}}}"]),
+    (
+        re.compile(r"(?<=[\"\']\$)(.*?)(?=[\"\']$)", re.MULTILINE | re.UNICODE),
+        ['"${match}"', "'${match}'"],
+    ),
+    (re.compile(r"\$(?!\d)(.*)", re.MULTILINE | re.UNICODE), ["{match}"]),
+]
+
+__version__ = "1.1.201201"
 
 
 class EnvYAML:
@@ -120,9 +129,12 @@ class EnvYAML:
 
         if file_path:
             with io.open(file_path, encoding="utf8") as f:
-                buff = f.read()  # type: str
+                content = f.read()  # type: str
 
-            for line in RE_DOT_ENV.findall(buff):
+            # remove comments
+            content = RE_COMMENTS.sub("", content)
+
+            for line in RE_DOT_ENV.findall(content):
                 name, value = line.strip().split("=", 1)  # type: str,str
 
                 # strip names and values
@@ -148,27 +160,37 @@ class EnvYAML:
         with io.open(file_path, encoding="utf8") as f:
             content = f.read()  # type:str
 
+        # remove comments
+        content = RE_COMMENTS.sub("", content)
+
         # fill variables and default values
-        for entry in RE_VAR.finditer(content):
-            match, group = entry.group(), entry.groups()[0]  # type: str, str
+        for re_env, templates in RE_ENV:
+            for entry in re_env.finditer(content):
+                match, group = entry.group(), entry.groups()[0]  # type: str, str
 
-            # if group exist then get group
-            kv = group if group else match[1:]  # type: str
-            var_name, var_default = (
-                kv.split(separator) if separator in kv else (kv, None)
-            )  # type: str, str
+                # if group exist then get group
+                kv = group if group else match[1:]  # type: str
+                var_name, var_default = (
+                    kv.split(separator) if separator in kv else (kv, None)
+                )  # type: str, str
 
-            if var_name in cfg:
-                content = content.replace(match, cfg[var_name])
+                if var_name in cfg:
+                    for tm in templates:
+                        # update match with template
+                        content = content.replace(tm.format(match=match), cfg[var_name])
 
-            elif var_name not in cfg and var_default is not None:
-                content = content.replace(match, var_default)
+                elif var_name not in cfg and var_default is not None:
+                    for tm in templates:
+                        # update match with template
+                        content = content.replace(tm.format(match=match), var_default)
 
-            else:
-                if strict:
-                    raise ValueError(
-                        "Strict mode enabled, variable $" + var_name + " not defined!"
-                    )
+                else:
+                    if strict:
+                        raise ValueError(
+                            "Strict mode enabled, variable $"
+                            + var_name
+                            + " not defined!"
+                        )
 
         # load content as yaml
         yaml = safe_load(content)
@@ -255,6 +277,14 @@ class EnvYAML:
 
         return dest_
 
+    def format(self, key, **kwargs):
+        """Apply quick format for string values with {arg}
+
+        :param str key: key to argument
+        :return str: return a formatted version
+        """
+        return self.__cfg[key].format(**kwargs)
+
     def keys(self):
         """Set-like object providing a view on keys"""
         return self.__cfg.keys()
@@ -263,7 +293,7 @@ class EnvYAML:
         """Check if key in configuration
 
         :param any item: get
-        :return:
+        :return: boo
         """
         return item in self.__cfg
 
