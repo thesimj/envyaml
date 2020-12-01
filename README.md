@@ -33,6 +33,9 @@ database:
     query: |-
       SELECT * FROM "users" WHERE "user" = $1 AND "login" = $2 AND "pwd" = $3
 
+    insert: |-
+      INSERT INTO "{table}" (user, login) VALUES ($1, $2)
+
 redis:
     host: $REDIS_HOST|127.0.0.1
     port: 5040
@@ -45,7 +48,7 @@ redis:
 empty_env: $NOT_EXIST_ENV_VARIABLE
 ```
 
-and environment variables set to
+Environment variables set to
 ```
 PROJECT_NAME=simple-hello
 PROJECT_ID=42
@@ -54,7 +57,7 @@ DATABASE_PASSWORD=super-secret-password
 REDIS_PREFIX=state
 ```
 
-parse file with `EnvYAML`
+Parse file with `EnvYAML`
 
 ```python
 from envyaml import EnvYAML
@@ -126,7 +129,7 @@ print('redis.port' in env)
 
 ```
 
-access config with `get` function and default value
+Access config with `get` function and default value
 ```python
 print(env.get('not.exist.value', 'default'))
 # >> default
@@ -137,6 +140,13 @@ print(env.get('empty_env', 'default'))
 print(env['empty_env'])
 # >> None
 ```
+
+Use `format` function to update placeholder
+```python
+print(env.format('database.insert', table="users"))
+# >> INSERT INTO "users" (user, login) VALUES ($1, $2)
+```
+
 
 ### Strict mode
 This mode is **enable by default** and prevent from declaring variables that
