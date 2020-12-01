@@ -38,7 +38,7 @@ RE_ENV = [
     (re.compile(r"\$(?!\d)(.*)", re.MULTILINE | re.UNICODE), ["{match}"]),
 ]
 
-__version__ = "1.1.201201"
+__version__ = "1.1.201202"
 
 
 class EnvYAML:
