@@ -281,7 +281,7 @@ class EnvYAML:
         """Apply quick format for string values with {arg}
 
         :param str key: key to argument
-        :return str: return a formatted version
+        :return str:
         """
         return self.__cfg[key].format(**kwargs)
 
