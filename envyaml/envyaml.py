@@ -26,7 +26,7 @@ import re
 
 from yaml import safe_load
 
-RE_COMMENTS = re.compile(r"(#.*\n)", re.MULTILINE | re.UNICODE)
+RE_COMMENTS = re.compile(r"(^#.*\n)", re.MULTILINE | re.UNICODE)
 RE_DOT_ENV = re.compile(r"^((?!\d)[\w\- ]+=.*)$", re.MULTILINE | re.UNICODE)
 
 RE_ENV = [
@@ -281,7 +281,7 @@ class EnvYAML:
         """Apply quick format for string values with {arg}
 
         :param str key: key to argument
-        :return str: return a formatted version
+        :return str:
         """
         return self.__cfg[key].format(**kwargs)
 
