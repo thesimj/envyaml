@@ -30,15 +30,21 @@ RE_COMMENTS = re.compile(r"(^#.*\n)", re.MULTILINE | re.UNICODE)
 RE_DOT_ENV = re.compile(r"^((?!\d)[\w\- ]+=.*)$", re.MULTILINE | re.UNICODE)
 
 RE_ENV = [
-    (re.compile(r"(?<=\$\{)(.*?)(?=\})", re.MULTILINE | re.UNICODE), ["${{{match}}}"]),
+    (
+        re.compile(r"(?<=\$\{)(.*?)(?=\})", re.MULTILINE | re.UNICODE),
+        ["${{{match}}}"]
+    ),
     (
         re.compile(r"(?<=[\"\']\$)(.*?)(?=[\"\']$)", re.MULTILINE | re.UNICODE),
         ['"${match}"', "'${match}'"],
     ),
-    (re.compile(r"\$(?!\d)(.*)", re.MULTILINE | re.UNICODE), ["{match}"]),
+    (
+        re.compile(r"\$(?!\d)(.*)(?<![\s\]])", re.MULTILINE | re.UNICODE),
+        ["{match}"]
+    ),
 ]
 
-__version__ = "1.1.201202"
+__version__ = "1.2.201222"
 
 
 class EnvYAML:
@@ -138,8 +144,8 @@ class EnvYAML:
                 name, value = line.strip().split("=", 1)  # type: str,str
 
                 # strip names and values
-                name = name.strip().strip("'\"")
-                value = value.strip().strip("'\"")
+                name = name.strip().strip("'\" ")
+                value = value.strip().strip("'\" ")
 
                 # set config
                 config[name] = value
