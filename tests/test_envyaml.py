@@ -284,3 +284,10 @@ def test_it_should_return_proper_formatted_string():
 def test_it_should_raise_exception_in_strict_mode():
     with pytest.raises(ValueError):
         EnvYAML("tests/env.ignored.yaml")
+
+
+def test_it_should_parser_environment_inside_array_and_object():
+    env = EnvYAML("tests/env.test.yaml", env_file="tests/test.env")
+
+    # assert array
+    assert env['var_in_array.to.0'] == 'env-username'
