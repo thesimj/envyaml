@@ -290,4 +290,4 @@ def test_it_should_parser_environment_inside_array_and_object():
     env = EnvYAML("tests/env.test.yaml", env_file="tests/test.env")
 
     # assert array
-    assert env['var_in_array.to.0'] == 'env-username'
+    assert env["var_in_array.to.0"] == "env-username"

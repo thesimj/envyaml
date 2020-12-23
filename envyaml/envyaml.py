@@ -24,27 +24,24 @@ import io
 import os
 import re
 
-from yaml import safe_load
+try:
+    from yaml import safe_load
+except ImportError:
+    safe_load = None
 
 RE_COMMENTS = re.compile(r"(^#.*\n)", re.MULTILINE | re.UNICODE)
 RE_DOT_ENV = re.compile(r"^((?!\d)[\w\- ]+=.*)$", re.MULTILINE | re.UNICODE)
 
 RE_ENV = [
-    (
-        re.compile(r"(?<=\$\{)(.*?)(?=\})", re.MULTILINE | re.UNICODE),
-        ["${{{match}}}"]
-    ),
+    (re.compile(r"(?<=\$\{)(.*?)(?=\})", re.MULTILINE | re.UNICODE), ["${{{match}}}"]),
     (
         re.compile(r"(?<=[\"\']\$)(.*?)(?=[\"\']$)", re.MULTILINE | re.UNICODE),
         ['"${match}"', "'${match}'"],
     ),
-    (
-        re.compile(r"\$(?!\d)(.*)(?<![\s\]])", re.MULTILINE | re.UNICODE),
-        ["{match}"]
-    ),
+    (re.compile(r"\$(?!\d)(.*)(?<![\s\]])", re.MULTILINE | re.UNICODE), ["{match}"]),
 ]
 
-__version__ = "1.2.201222"
+__version__ = "1.2.201224"
 
 
 class EnvYAML:
@@ -197,6 +194,13 @@ class EnvYAML:
                             + var_name
                             + " not defined!"
                         )
+
+        # raise module not found when no pyyaml installed
+        if safe_load is None:
+            raise ModuleNotFoundError(
+                'EnvYAML require "pyyaml >= 5" module to work. '
+                "Consider install this module into environment!"
+            )
 
         # load content as yaml
         yaml = safe_load(content)
