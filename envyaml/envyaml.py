@@ -24,27 +24,20 @@ import io
 import os
 import re
 
-from yaml import safe_load
+try:
+    from yaml import safe_load
+except ImportError:
+    safe_load = None
 
 RE_COMMENTS = re.compile(r"(^#.*\n)", re.MULTILINE | re.UNICODE)
 RE_DOT_ENV = re.compile(r"^((?!\d)[\w\- ]+=.*)$", re.MULTILINE | re.UNICODE)
 
 RE_ENV = [
-    (
-        re.compile(r"(?<=\$\{)(.*?)(?=\})", re.MULTILINE | re.UNICODE),
-        ["${{{match}}}"]
-    ),
-    (
-        re.compile(r"(?<=[\"\']\$)(.*?)(?=[\"\']$)", re.MULTILINE | re.UNICODE),
-        ['"${match}"', "'${match}'"],
-    ),
-    (
-        re.compile(r"\$(?!\d)(.*)(?<![\s\]])", re.MULTILINE | re.UNICODE),
-        ["{match}"]
-    ),
+    (re.compile(r"(?<=\$\{)(.*?)(?=\})", re.MULTILINE | re.UNICODE), "${{{match}}}"),
+    (re.compile(r"\$(?!\d)(.*)(?<![\s\]\}])", re.MULTILINE | re.UNICODE), "{match}"),
 ]
 
-__version__ = "1.2.201222"
+__version__ = "1.3.201225"
 
 
 class EnvYAML:
@@ -69,6 +62,13 @@ class EnvYAML:
         :param bool strict: use strict mode and throw exception when have unset variable, by default true
         :return EnvYAML: new instance of EnvYAML
         """
+        # raise exception module not found when no pyyaml installed
+        if safe_load is None:
+            raise ModuleNotFoundError(
+                'EnvYAML require "pyyaml >= 5" module to work. '
+                "Consider install this module into environment!"
+            )
+
         self.__strict = strict
         self.__env_file = env_file
         self.__yaml_file = yaml_file
@@ -153,52 +153,117 @@ class EnvYAML:
         return config
 
     @staticmethod
+    def __extract_env(content):
+        """Find all $ vairables in content
+
+        :param content any: raw content
+        :return dict: mapping keys with $ and none as values
+        """
+        findings_ = {}
+
+        # only for those list
+        if isinstance(content, (list, tuple, dict, type)):
+            elements = (
+                enumerate(content)
+                if (isinstance(content, list) or isinstance(content, tuple))
+                else content.items()
+            )  # type: (str, any)
+
+            for key_, value_ in elements:
+                # test key
+                if isinstance(key_, str) and "$" in key_:
+                    findings_[key_] = None
+
+                if isinstance(value_, dict):
+                    findings_.update(EnvYAML.__extract_env(value_))
+
+                elif isinstance(value_, list):
+                    findings_.update(EnvYAML.__extract_env(value_))
+
+                elif isinstance(value_, str) and "$" in value_:
+                    findings_[value_] = None
+
+        # check if this is string that contain $
+        elif isinstance(content, str) and "$" in content:
+            findings_[content] = None
+
+        return findings_
+
+    @staticmethod
     def __read_yaml_file(file_path, cfg, strict, separator="|"):
         """read and parse yaml file
 
         :param str file_path: path to file
         :param dict cfg: configuration variables (environ and .env)
         :param bool strict: strict mode
-        :return: dict
+        :return dict:
         """
 
         # read and parse files
         with io.open(file_path, encoding="utf8") as f:
             content = f.read()  # type:str
 
-        # remove comments
-        content = RE_COMMENTS.sub("", content)
+        # parse raw yaml content
+        yaml_raw = safe_load(content)
+
+        # extract all variables that have $ in name
+        extracted = EnvYAML.__extract_env(yaml_raw)
+
+        # not found variables
+        not_found_variables = []
 
         # fill variables and default values
-        for re_env, templates in RE_ENV:
-            for entry in re_env.finditer(content):
-                match, group = entry.group(), entry.groups()[0]  # type: str, str
+        for re_env, template in RE_ENV:
+            for key, value in extracted.items():
+                if value is None:
+                    context = key
 
-                # if group exist then get group
-                kv = group if group else match[1:]  # type: str
-                var_name, var_default = (
-                    kv.split(separator) if separator in kv else (kv, None)
-                )  # type: str, str
+                    # iterate over findings
+                    for entry in re_env.finditer(context):
+                        match, group = (
+                            entry.group(),
+                            entry.groups()[0],
+                        )  # type: str, str
 
-                if var_name in cfg:
-                    for tm in templates:
-                        # update match with template
-                        content = content.replace(tm.format(match=match), cfg[var_name])
+                        # if group exist then get group
+                        kv = group if group else match[1:]  # type: str
+                        var_name, var_default = (
+                            kv.split(separator) if separator in kv else (kv, None)
+                        )  # type: str, str
 
-                elif var_name not in cfg and var_default is not None:
-                    for tm in templates:
-                        # update match with template
-                        content = content.replace(tm.format(match=match), var_default)
+                        if var_name in cfg:
+                            # update match with template
+                            context = context.replace(
+                                template.format(match=match), cfg[var_name]
+                            )
 
-                else:
-                    if strict:
-                        raise ValueError(
-                            "Strict mode enabled, variable $"
-                            + var_name
-                            + " not defined!"
-                        )
+                        elif var_name not in cfg and var_default is not None:
+                            # update match with template
+                            context = context.replace(
+                                template.format(match=match), var_default
+                            )
 
-        # load content as yaml
+                        else:
+                            not_found_variables.append(var_name)
+
+                        # set context
+                        extracted[key] = context
+
+        # strict mode
+        if strict and not_found_variables:
+            raise ValueError(
+                "Strict mode enabled, variables "
+                + ", ".join(["$" + v for v in not_found_variables])
+                + " are not defined!"
+            )
+
+        # replace in content
+        for key, value in extracted.items():  # type: str, any
+            if value is not None:
+                # replace content
+                content = content.replace(key, value)
+
+        # load proper content
         yaml = safe_load(content)
 
         # if contains somethings
@@ -299,7 +364,7 @@ class EnvYAML:
         """Check if key in configuration
 
         :param any item: get
-        :return: boo
+        :return bool:
         """
         return item in self.__cfg
 
