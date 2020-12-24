@@ -30,7 +30,7 @@ def test_it_should_read_env_file():
     assert env["PASSWORD_WE"] == "env-password-without-escape"
     assert env["EMPTY"] == ""
 
-    # Test wrong names, should be not found and raise KeyErro
+    # Test wrong names, should be not found and raise KeyError
     with pytest.raises(KeyError):
         assert env["01sre"]
 
@@ -291,3 +291,7 @@ def test_it_should_parser_environment_inside_array_and_object():
 
     # assert array
     assert env["var_in_array.to.0"] == "env-username"
+
+    # assert dictionary
+    assert env["var_in_dict.extra.user"] == "env-username"
+    assert env["var_in_dict.extra.password"] == "env-password-with-escape"
