@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from __future__ import absolute_import, unicode_literals
 
 import os
@@ -322,16 +323,16 @@ def test_it_should_parse_env_file_as_list():
 
 
 def test_it_should_parse_env_file_as_unicode():
-    os.environ[u"ÜBERMORGEN"] = u"ÜBERMORGEN"
-    os.environ[u"ПІСЛЯЗАВТРА"] = u"ПІСЛЯЗАВТРА"
+    os.environ["ÜBERMORGEN"] = "ÜBERMORGEN"
+    os.environ["ПІСЛЯЗАВТРА"] = "ПІСЛЯЗАВТРА"
 
     env = EnvYAML("tests/env.default.yaml", "tests/test.env")
 
-    assert env["next.relase"] == u"ÜBERMORGEN"
-    assert env["next.maybe"] == u"ПІСЛЯЗАВТРА"
+    assert env["next.relase"] == "ÜBERMORGEN"
+    assert env["next.maybe"] == "ПІСЛЯЗАВТРА"
 
-    del os.environ[u"ÜBERMORGEN"]
-    del os.environ[u"ПІСЛЯЗАВТРА"]
+    del os.environ["ÜBERMORGEN"]
+    del os.environ["ПІСЛЯЗАВТРА"]
 
 
 def test_it_should_thwor_exception_when_double_variable_in_dotenv_file():
