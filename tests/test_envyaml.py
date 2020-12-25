@@ -3,7 +3,6 @@ from __future__ import absolute_import
 import os
 
 import pytest
-
 from envyaml import EnvYAML
 
 # set os env
@@ -295,3 +294,46 @@ def test_it_should_parser_environment_inside_array_and_object():
     # assert dictionary
     assert env["var_in_dict.extra.user"] == "env-username"
     assert env["var_in_dict.extra.password"] == "env-password-with-escape"
+
+
+def test_it_should_parser_long_env_with_several_elements():
+    env = EnvYAML("tests/env.test.yaml", env_file="tests/test.env")
+
+    assert env["key_extr"] == 'project-x -ex "es5" -an -c:v libx264 -qp 23 -f seg'
+
+
+def test_it_should_has_no_stict_exception_when_set_env():
+    # set special env to supress strict mode globaly
+    os.environ[EnvYAML.ENVYAML_STRICT_DISABLE] = ""
+
+    env = EnvYAML("tests/env.ignored.yaml", strict=True)
+
+    assert env["env_file.config"] == "$ENV_CONFIG_VERSION"
+
+    del os.environ[EnvYAML.ENVYAML_STRICT_DISABLE]
+
+
+def test_it_should_parse_env_file_as_list():
+    env = EnvYAML("tests/env.list.yaml", env_file="tests/test.env")
+
+    assert env["0.testing_1.env.username"] == "env-username"
+    assert env["1.testing_2.env.username"] == "env-username"
+    assert env["2.testing_3.env.username"] == "env-username"
+
+
+def test_it_should_parse_env_file_as_unicode():
+    os.environ[u"ÜBERMORGEN"] = "ÜBERMORGEN"
+    os.environ[u"ПІСЛЯЗАВТРА"] = "ПІСЛЯЗАВТРА"
+
+    env = EnvYAML("tests/env.default.yaml", "tests/test.env")
+
+    assert env["next.relase"] == u"ÜBERMORGEN"
+    assert env["next.maybe"] == u"ПІСЛЯЗАВТРА"
+
+    del os.environ[u"ÜBERMORGEN"]
+    del os.environ[u"ПІСЛЯЗАВТРА"]
+
+
+def test_it_should_thwor_exception_when_double_variable_in_dotenv_file():
+    with pytest.raises(ValueError):
+        EnvYAML("tests/env.default.yaml", "tests/double.env")
