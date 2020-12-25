@@ -322,8 +322,8 @@ def test_it_should_parse_env_file_as_list():
 
 
 def test_it_should_parse_env_file_as_unicode():
-    os.environ[u"ÜBERMORGEN"] = "ÜBERMORGEN"
-    os.environ[u"ПІСЛЯЗАВТРА"] = "ПІСЛЯЗАВТРА"
+    os.environ[u"ÜBERMORGEN"] = u"ÜBERMORGEN"
+    os.environ[u"ПІСЛЯЗАВТРА"] = u"ПІСЛЯЗАВТРА"
 
     env = EnvYAML("tests/env.default.yaml", "tests/test.env")
 
