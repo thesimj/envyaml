@@ -2,6 +2,7 @@
 from __future__ import absolute_import, unicode_literals
 
 import os
+import sys
 
 import pytest
 from envyaml import EnvYAML
@@ -322,17 +323,21 @@ def test_it_should_parse_env_file_as_list():
     assert env["2.testing_3.env.username"] == "env-username"
 
 
+@pytest.mark.skipif(sys.version_info.major == 2, reason='Ignore UTF8 at Python 2.7')
 def test_it_should_parse_env_file_as_unicode():
-    os.environ[u"ÜBERMORGEN"] = u"ÜBERMORGEN"
-    os.environ[u"ПІСЛЯЗАВТРА"] = u"ПІСЛЯЗАВТРА"
+    va = "ÜBERMORGEN"
+    vb = "ПІСЛЯЗАВТРА"
+
+    os.environ[va] = va + "😃"
+    os.environ[vb] = vb + "😃"
 
     env = EnvYAML("tests/env.default.yaml", "tests/test.env")
 
-    assert env["next.relase"] == u"ÜBERMORGEN"
-    assert env["next.maybe"] == u"ПІСЛЯЗАВТРА"
+    assert env["next.relase"] == va + "😃"
+    assert env["next.maybe"] == vb + "😃"
 
-    del os.environ[u"ÜBERMORGEN"]
-    del os.environ[u"ПІСЛЯЗАВТРА"]
+    del os.environ[va]
+    del os.environ[vb]
 
 
 def test_it_should_thwor_exception_when_double_variable_in_dotenv_file():
