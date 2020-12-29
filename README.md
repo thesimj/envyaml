@@ -45,6 +45,8 @@ redis:
       expire: 300
       prefix: $REDIS_PREFIX
 
+escaped: $$.extra
+
 empty_env: $NOT_EXIST_ENV_VARIABLE
 ```
 
@@ -152,7 +154,18 @@ print(env.format('database.insert', table="users"))
 This mode is **enable by default** and prevent from declaring variables that
 not exist in `environment variables` or `.env` file. This leads to have runtime ValueError exception when variables
 not define with message `Strict mode enabled, variable $VAR not defined!`. To disable **strict** mode
-specify `strict=False` to EnvYAML object
+specify `strict=False` at EnvYAML object initialization. The another option to disable `strict` mode, it's define
+`ENVYAML_STRICT_DISABLE` environment variable before initialize EnvYAML object.
+
+
+### Escaped variables
+In case of usage `$` in env.yaml file as value double `$$` should be used. Example:
+Use `escaped` variable
+```python
+print(env['escaped'])
+# >> $.extra
+```
+
 
 ### License
 MIT licensed. See the [LICENSE](LICENSE) file for more details.

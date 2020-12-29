@@ -5,6 +5,7 @@ import os
 import sys
 
 import pytest
+
 from envyaml import EnvYAML
 
 # set os env
@@ -323,7 +324,7 @@ def test_it_should_parse_env_file_as_list():
     assert env["2.testing_3.env.username"] == "env-username"
 
 
-@pytest.mark.skipif(sys.version_info.major == 2, reason='Ignore UTF8 at Python 2.7')
+@pytest.mark.skipif(sys.version_info.major == 2, reason="Ignore UTF8 at Python 2.7")
 def test_it_should_parse_env_file_as_unicode():
     va = "ÜBERMORGEN"
     vb = "ПІСЛЯЗАВТРА"
@@ -343,3 +344,11 @@ def test_it_should_parse_env_file_as_unicode():
 def test_it_should_thwor_exception_when_double_variable_in_dotenv_file():
     with pytest.raises(ValueError):
         EnvYAML("tests/env.default.yaml", "tests/double.env")
+
+
+def test_it_should_pass_escaped_variable():
+    env = EnvYAML("tests/env.default.yaml", "tests/test.env")
+
+    assert env["test_escape.one"] == "$.foo"
+    assert env["test_escape.two"] == "$meet"
+    assert env["test_escape.three"] == "${bracket}"
