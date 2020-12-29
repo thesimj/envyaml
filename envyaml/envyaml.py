@@ -47,7 +47,7 @@ RE_PATTERN = re.compile(
     re.MULTILINE | re.UNICODE | re.IGNORECASE | re.VERBOSE,
 )
 
-__version__ = "1.5.201226"
+__version__ = "1.6.201229"
 
 
 class EnvYAML:
@@ -214,6 +214,9 @@ class EnvYAML:
             elif groups["braced"]:
                 variable = groups["braced"]
                 default = groups["braced_default"]
+
+            elif groups["escaped"] and "$" in groups["escaped"]:
+                content = content.replace("$" + groups["escaped"], groups["escaped"])
 
             if variable is not None:
                 if variable in cfg:
