@@ -352,3 +352,9 @@ def test_it_should_pass_escaped_variable():
     assert env["test_escape.one"] == "$.foo"
     assert env["test_escape.two"] == "$meet"
     assert env["test_escape.three"] == "${bracket}"
+
+
+def test_it_should_properly_resolve_extra_fields():
+    env = EnvYAML("tests/env.default.yaml", "tests/test.env")
+
+    assert env["extra.password_extra_1"] == "password-extra"

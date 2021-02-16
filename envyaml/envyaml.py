@@ -47,7 +47,10 @@ RE_PATTERN = re.compile(
     re.MULTILINE | re.UNICODE | re.IGNORECASE | re.VERBOSE,
 )
 
-__version__ = "1.6.201229"
+# change variables part
+RE_SUB = r"(?![\_])"
+
+__version__ = "1.6.210210"
 
 
 class EnvYAML:
@@ -233,8 +236,13 @@ class EnvYAML:
                 search += "|" + default if default is not None else ""
                 search += "}" if groups["braced"] else ""
 
-                # change varible at content
-                content = content.replace(search, replace)
+                # replace variables
+                content = re.sub(
+                    re.escape(search) + RE_SUB,
+                    replace,
+                    content,
+                    flags=re.MULTILINE | re.UNICODE,
+                )
 
         # strict mode
         if strict and not_found_variables:
