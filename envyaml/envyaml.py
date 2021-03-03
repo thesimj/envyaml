@@ -66,7 +66,8 @@ class EnvYAML:
     __strict = True  # type: bool
 
     def __init__(
-        self, yaml_file=None, env_file=None, include_environment=True, strict=True
+        self, yaml_file=None, env_file=None, include_environment=True, strict=True,
+        **kwargs
     ):
         """Create EnvYAML class instance and read content from environment and files if they exists
 
@@ -74,6 +75,7 @@ class EnvYAML:
         :param str env_file: file path for .env file or None by default
         :param bool include_environment: include environment variable, by default true
         :param bool strict: use strict mode and throw exception when have unset variable, by default true
+        :param dict kwargs: additional environment variables keys and values
         :return: new instance of EnvYAML
         """
         # raise exception module not found when no pyyaml installed
@@ -99,6 +101,11 @@ class EnvYAML:
                 self.__get_file_path(env_file, "ENV_FILE", self.DEFAULT_ENV_FILE),
                 self.__strict,
             )
+        )
+
+        # fill cfg with kwargs
+        self.__cfg.update(
+            kwargs
         )
 
         # read yaml file and parse it
