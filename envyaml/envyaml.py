@@ -50,7 +50,7 @@ RE_PATTERN = re.compile(
 # change variables part
 RE_SUB = r"(?![\_])"
 
-__version__ = "1.6.210210"
+__version__ = "1.7.210310"
 
 
 class EnvYAML:
