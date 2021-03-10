@@ -358,3 +358,12 @@ def test_it_should_properly_resolve_extra_fields():
     env = EnvYAML("tests/env.default.yaml", "tests/test.env")
 
     assert env["extra.password_extra_1"] == "password-extra"
+
+
+def test_it_should_override_cfg_with_kwargs():
+    d = dict(PROJECT_NAME="project-x-UPDATED")
+    env = EnvYAML("tests/env.default.yaml",
+                  "tests/test.env",
+                  **d)
+
+    assert env["PROJECT_NAME"] == "project-x-UPDATED"
