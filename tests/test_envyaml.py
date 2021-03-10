@@ -362,8 +362,6 @@ def test_it_should_properly_resolve_extra_fields():
 
 def test_it_should_override_cfg_with_kwargs():
     d = dict(PROJECT_NAME="project-x-UPDATED")
-    env = EnvYAML("tests/env.default.yaml",
-                  "tests/test.env",
-                  **d)
+    env = EnvYAML("tests/env.default.yaml", "tests/test.env", **d)
 
     assert env["PROJECT_NAME"] == "project-x-UPDATED"
