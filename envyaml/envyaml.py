@@ -66,7 +66,11 @@ class EnvYAML:
     __strict = True  # type: bool
 
     def __init__(
-        self, yaml_file=None, env_file=None, include_environment=True, strict=True,
+        self,
+        yaml_file=None,
+        env_file=None,
+        include_environment=True,
+        strict=True,
         **kwargs
     ):
         """Create EnvYAML class instance and read content from environment and files if they exists
@@ -104,9 +108,7 @@ class EnvYAML:
         )
 
         # fill cfg with kwargs
-        self.__cfg.update(
-            kwargs
-        )
+        self.__cfg.update(kwargs)
 
         # read yaml file and parse it
         yaml_config = self.__read_yaml_file(
