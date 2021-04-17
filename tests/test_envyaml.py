@@ -356,6 +356,7 @@ def test_it_should_properly_resolve_extra_fields():
     env = EnvYAML("tests/env.default.yaml", "tests/test.env")
 
     assert env["extra.password_extra_1"] == "password-extra"
+    assert env["key_with_slash"] == "c:\\Users\\User"
 
 
 def test_it_should_override_cfg_with_kwargs():
