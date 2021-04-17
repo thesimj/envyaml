@@ -236,11 +236,9 @@ def test_it_should_be_valid_in_check():
 
 def test_it_should_proper_handle_dollar_sign_with_number():
     env = EnvYAML("tests/env.test.yaml", env_file="tests/test.env")
+    expected = 'SELECT * FROM "users" WHERE "user" = $1 AND "login" = $2 AND "pwd" = $3'
 
-    assert (
-        env["sql"]
-        == 'SELECT * FROM "users" WHERE "user" = $1 AND "login" = $2 AND "pwd" = $3'
-    )
+    assert env["sql"] == expected
 
 
 def test_it_should_proper_complex_variable():
@@ -305,8 +303,8 @@ def test_it_should_parser_long_env_with_several_elements():
     assert env["key_extr"] == 'project-x -ex "es5" -an -c:v libx264 -qp 23 -f seg'
 
 
-def test_it_should_has_no_stict_exception_when_set_env():
-    # set special env to supress strict mode globaly
+def test_it_should_has_no_strict_exception_when_set_env():
+    # set special env to suppress strict mode globally
     os.environ[EnvYAML.ENVYAML_STRICT_DISABLE] = ""
 
     env = EnvYAML("tests/env.ignored.yaml", strict=True)
@@ -341,7 +339,7 @@ def test_it_should_parse_env_file_as_unicode():
     del os.environ[vb]
 
 
-def test_it_should_thwor_exception_when_double_variable_in_dotenv_file():
+def test_it_should_throw_exception_when_double_variable_in_dotenv_file():
     with pytest.raises(ValueError):
         EnvYAML("tests/env.default.yaml", "tests/double.env")
 
