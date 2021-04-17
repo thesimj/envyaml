@@ -2,6 +2,10 @@
 # This file is part of EnvYaml project
 # https://github.com/thesimj/envyaml
 #
+# MIT License
+#
+# Copyright (c) 2021 Mykola Bubelich
+#
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
 # in the Software without restriction, including without limitation the rights
@@ -47,10 +51,7 @@ RE_PATTERN = re.compile(
     re.MULTILINE | re.UNICODE | re.IGNORECASE | re.VERBOSE,
 )
 
-# change variables part
-RE_SUB = r"(?![\_])"
-
-__version__ = "1.7.210310"
+__version__ = "1.8.210417"
 
 
 class EnvYAML:
@@ -162,7 +163,7 @@ class EnvYAML:
         :return: dict
         """
         config = dict()
-        definded = set()
+        defined = set()
 
         if file_path:
             with io.open(file_path, encoding="utf8") as f:
@@ -175,16 +176,16 @@ class EnvYAML:
 
                 # check double definition
                 if name in config:
-                    definded.add(name)
+                    defined.add(name)
 
                 # set variable name and value
                 config[name] = value
 
         # strict mode
-        if strict and definded:
+        if strict and defined:
             raise ValueError(
                 "Strict mode enabled, variables "
-                + ", ".join(["$" + v for v in definded])
+                + ", ".join(["$" + v for v in defined])
                 + " defined several times!"
             )
 
@@ -209,6 +210,9 @@ class EnvYAML:
 
         # not found variables
         not_found_variables = set()
+
+        # changes dictionary
+        replaces = dict()
 
         # iterate over findings
         for entry in RE_PATTERN.finditer(content):
@@ -242,16 +246,11 @@ class EnvYAML:
                 # build match
                 search = "${" if groups["braced"] else "$"
                 search += variable
-                search += "|" + default if default is not None else ""
+                search += separator + default if default is not None else ""
                 search += "}" if groups["braced"] else ""
 
-                # replace variables
-                content = re.sub(
-                    re.escape(search) + RE_SUB,
-                    replace,
-                    content,
-                    flags=re.MULTILINE | re.UNICODE,
-                )
+                # store findings
+                replaces[search] = replace
 
         # strict mode
         if strict and not_found_variables:
@@ -260,6 +259,10 @@ class EnvYAML:
                 + ", ".join(["$" + v for v in not_found_variables])
                 + " are not defined!"
             )
+
+        # replace finding with there respective values
+        for replace in sorted(replaces, reverse=True):
+            content = content.replace(replace, replaces[replace])
 
         # load proper content
         yaml = safe_load(content)
