@@ -367,8 +367,10 @@ def test_it_should_override_cfg_with_kwargs():
 
 def test_it_should_not_flatten():
     env = EnvYAML(
-        yaml_file="tests/env.default.yaml", env_file="tests/test.env", strict=True,
-        flatten=False
+        yaml_file="tests/env.default.yaml",
+        env_file="tests/test.env",
+        strict=True,
+        flatten=False,
     )
 
     assert env["config"]["with_default"] == "DEFAULT"

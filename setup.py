@@ -8,7 +8,7 @@ with open("README.md", "r") as f:
 
 setup(
     name="envyaml",
-    packages=find_packages(),
+    packages=find_packages(exclude=["tests"]),
     version=__version__,
     url="https://github.com/thesimj/envyaml",
     license="MIT",
