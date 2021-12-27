@@ -51,7 +51,7 @@ RE_PATTERN = re.compile(
     re.MULTILINE | re.UNICODE | re.IGNORECASE | re.VERBOSE,
 )
 
-__version__ = "1.9.210927"
+__version__ = "1.10.211227"
 
 
 class EnvYAML:
