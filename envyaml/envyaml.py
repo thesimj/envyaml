@@ -238,7 +238,11 @@ class EnvYAML:
 
             elif groups["escaped"] and "$" in groups["escaped"]:
                 span = entry.span()
-                content = content[:span[0] + shifting] + groups["escaped"] + content[span[1] + shifting:]
+                content = (
+                    content[: span[0] + shifting]
+                    + groups["escaped"]
+                    + content[span[1] + shifting :]
+                )
                 # Added shifting since every time we update content we are
                 # changing the original groups spans
                 shifting += len(groups["escaped"]) - (span[1] - span[0])
