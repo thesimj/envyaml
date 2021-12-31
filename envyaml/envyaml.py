@@ -51,7 +51,7 @@ RE_PATTERN = re.compile(
     re.MULTILINE | re.UNICODE | re.IGNORECASE | re.VERBOSE,
 )
 
-__version__ = "1.9.210927"
+__version__ = "1.10.211231"
 
 
 class EnvYAML:
@@ -182,7 +182,7 @@ class EnvYAML:
                     defined.add(name)
 
                 # set variable name and value
-                config[name] = value
+                config[name] = os.path.expandvars(value) if "$" in value else value
 
         # strict mode
         if strict and defined:
@@ -217,6 +217,8 @@ class EnvYAML:
         # changes dictionary
         replaces = dict()
 
+        shifting = 0
+
         # iterate over findings
         for entry in RE_PATTERN.finditer(content):
             groups = entry.groupdict()  # type: dict
@@ -235,7 +237,15 @@ class EnvYAML:
                 default = groups["braced_default"]
 
             elif groups["escaped"] and "$" in groups["escaped"]:
-                content = content.replace("$" + groups["escaped"], groups["escaped"])
+                span = entry.span()
+                content = (
+                    content[: span[0] + shifting]
+                    + groups["escaped"]
+                    + content[span[1] + shifting :]
+                )
+                # Added shifting since every time we update content we are
+                # changing the original groups spans
+                shifting += len(groups["escaped"]) - (span[1] - span[0])
 
             if variable is not None:
                 if variable in cfg:

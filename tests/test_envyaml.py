@@ -349,6 +349,11 @@ def test_it_should_pass_escaped_variable():
     assert env["test_escape.one"] == "$.foo"
     assert env["test_escape.two"] == "$meet"
     assert env["test_escape.three"] == "${bracket}"
+    assert env["test_escape.four"] == "SomePa$$$word"
+    assert env["test_escape.five"] == "SomePa$$${word}"
+    assert env["test_escape.six"] == "$env-password-with-escape"
+    assert env["test_escape.seven"] == "$env-password-with-escape"
+    assert env["test_escape.eight"] == "$DEFAULT"
 
 
 def test_it_should_properly_resolve_extra_fields():
@@ -363,6 +368,29 @@ def test_it_should_override_cfg_with_kwargs():
     env = EnvYAML("tests/env.default.yaml", "tests/test.env", **d)
 
     assert env["PROJECT_NAME"] == "project-x-UPDATED"
+
+
+def test_it_should_not_flatten():
+    env = EnvYAML(
+        yaml_file="tests/env.default.yaml",
+        env_file="tests/test.env",
+        strict=True,
+        flatten=False,
+    )
+
+    assert env["config"]["with_default"] == "DEFAULT"
+    assert "config.with_default" not in env
+
+
+def test_it_should_correct_handle_user_variables():
+    # set home to defined user
+    os.environ["HOME"] = "/home/user"
+
+    # read env file
+    env = EnvYAML(yaml_file="tests/env.default.yaml", env_file="tests/test.env")
+
+    # print(env['my_source_directory'])
+    assert env["my_source_directory"] == "/home/user/mapped/source/directory"
 
 
 def test_it_should_not_flatten():
