@@ -51,7 +51,7 @@ RE_PATTERN = re.compile(
     re.MULTILINE | re.UNICODE | re.IGNORECASE | re.VERBOSE,
 )
 
-__version__ = "1.8.210417"
+__version__ = "1.9.210927"
 
 
 class EnvYAML:
@@ -72,6 +72,7 @@ class EnvYAML:
         env_file=None,
         include_environment=True,
         strict=True,
+        flatten=True,
         **kwargs
     ):
         """Create EnvYAML class instance and read content from environment and files if they exists
@@ -80,6 +81,7 @@ class EnvYAML:
         :param str env_file: file path for .env file or None by default
         :param bool include_environment: include environment variable, by default true
         :param bool strict: use strict mode and throw exception when have unset variable, by default true
+        :param bool flatten: whether we should flatten config hierarchy or not
         :param dict kwargs: additional environment variables keys and values
         :return: new instance of EnvYAML
         """
@@ -127,7 +129,8 @@ class EnvYAML:
             self.__cfg.update(yaml_config)
 
         # make config as flat dict with '.'
-        self.__cfg = self.__flat(self.__cfg)
+        if flatten:
+            self.__cfg = self.__flat(self.__cfg)
 
     def get(self, key, default=None):
         """Get configuration variable with default value. If no `default` value set use None

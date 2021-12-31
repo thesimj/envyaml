@@ -3,7 +3,6 @@ from __future__ import absolute_import, unicode_literals
 
 import os
 import sys
-
 import pytest
 
 from envyaml import EnvYAML
@@ -364,3 +363,15 @@ def test_it_should_override_cfg_with_kwargs():
     env = EnvYAML("tests/env.default.yaml", "tests/test.env", **d)
 
     assert env["PROJECT_NAME"] == "project-x-UPDATED"
+
+
+def test_it_should_not_flatten():
+    env = EnvYAML(
+        yaml_file="tests/env.default.yaml",
+        env_file="tests/test.env",
+        strict=True,
+        flatten=False,
+    )
+
+    assert env["config"]["with_default"] == "DEFAULT"
+    assert "config.with_default" not in env
