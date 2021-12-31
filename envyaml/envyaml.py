@@ -217,6 +217,8 @@ class EnvYAML:
         # changes dictionary
         replaces = dict()
 
+        shifting = 0
+
         # iterate over findings
         for entry in RE_PATTERN.finditer(content):
             groups = entry.groupdict()  # type: dict
@@ -235,7 +237,11 @@ class EnvYAML:
                 default = groups["braced_default"]
 
             elif groups["escaped"] and "$" in groups["escaped"]:
-                content = content.replace("$" + groups["escaped"], groups["escaped"])
+                span = entry.span()
+                content = content[:span[0] + shifting] + groups["escaped"] + content[span[1] + shifting:]
+                # Added shifting since every time we update content we are
+                # changing the original groups spans
+                shifting += len(groups["escaped"]) - (span[1] - span[0])
 
             if variable is not None:
                 if variable in cfg:

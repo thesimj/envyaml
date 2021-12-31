@@ -349,6 +349,11 @@ def test_it_should_pass_escaped_variable():
     assert env["test_escape.one"] == "$.foo"
     assert env["test_escape.two"] == "$meet"
     assert env["test_escape.three"] == "${bracket}"
+    assert env["test_escape.four"] == "SomePa$$$word"
+    assert env["test_escape.five"] == "SomePa$$${word}"
+    assert env["test_escape.six"] == "$env-password-with-escape"
+    assert env["test_escape.seven"] == "$env-password-with-escape"
+    assert env["test_escape.eight"] == "$DEFAULT"
 
 
 def test_it_should_properly_resolve_extra_fields():
