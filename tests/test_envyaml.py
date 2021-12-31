@@ -375,3 +375,26 @@ def test_it_should_not_flatten():
 
     assert env["config"]["with_default"] == "DEFAULT"
     assert "config.with_default" not in env
+
+
+def test_it_should_correct_handle_user_variables():
+    # set home to defined user
+    os.environ["HOME"] = "/home/user"
+
+    # read env file
+    env = EnvYAML(yaml_file="tests/env.default.yaml", env_file="tests/test.env")
+
+    # print(env['my_source_directory'])
+    assert env["my_source_directory"] == "/home/user/mapped/source/directory"
+
+
+def test_it_should_not_flatten():
+    env = EnvYAML(
+        yaml_file="tests/env.default.yaml",
+        env_file="tests/test.env",
+        strict=True,
+        flatten=False,
+    )
+
+    assert env["config"]["with_default"] == "DEFAULT"
+    assert "config.with_default" not in env

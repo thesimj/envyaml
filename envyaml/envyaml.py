@@ -51,7 +51,7 @@ RE_PATTERN = re.compile(
     re.MULTILINE | re.UNICODE | re.IGNORECASE | re.VERBOSE,
 )
 
-__version__ = "1.9.210927"
+__version__ = "1.10.211231"
 
 
 class EnvYAML:
@@ -182,7 +182,7 @@ class EnvYAML:
                     defined.add(name)
 
                 # set variable name and value
-                config[name] = value
+                config[name] = os.path.expandvars(value) if "$" in value else value
 
         # strict mode
         if strict and defined:
