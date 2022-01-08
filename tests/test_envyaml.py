@@ -1,7 +1,8 @@
-from __future__ import absolute_import
+# -*- coding: utf-8 -*-
+from __future__ import absolute_import, unicode_literals
 
 import os
-
+import sys
 import pytest
 
 from envyaml import EnvYAML
@@ -30,7 +31,7 @@ def test_it_should_read_env_file():
     assert env["PASSWORD_WE"] == "env-password-without-escape"
     assert env["EMPTY"] == ""
 
-    # Test wrong names, should be not found and raise KeyErro
+    # Test wrong names, should be not found and raise KeyError
     with pytest.raises(KeyError):
         assert env["01sre"]
 
@@ -234,11 +235,9 @@ def test_it_should_be_valid_in_check():
 
 def test_it_should_proper_handle_dollar_sign_with_number():
     env = EnvYAML("tests/env.test.yaml", env_file="tests/test.env")
+    expected = 'SELECT * FROM "users" WHERE "user" = $1 AND "login" = $2 AND "pwd" = $3'
 
-    assert (
-        env["sql"]
-        == 'SELECT * FROM "users" WHERE "user" = $1 AND "login" = $2 AND "pwd" = $3'
-    )
+    assert env["sql"] == expected
 
 
 def test_it_should_proper_complex_variable():
@@ -284,3 +283,123 @@ def test_it_should_return_proper_formatted_string():
 def test_it_should_raise_exception_in_strict_mode():
     with pytest.raises(ValueError):
         EnvYAML("tests/env.ignored.yaml")
+
+
+def test_it_should_parser_environment_inside_array_and_object():
+    env = EnvYAML("tests/env.test.yaml", env_file="tests/test.env")
+
+    # assert array
+    assert env["var_in_array.to.0"] == "env-username"
+
+    # assert dictionary
+    assert env["var_in_dict.extra.user"] == "env-username"
+    assert env["var_in_dict.extra.password"] == "env-password-with-escape"
+
+
+def test_it_should_parser_long_env_with_several_elements():
+    env = EnvYAML("tests/env.test.yaml", env_file="tests/test.env")
+
+    assert env["key_extr"] == 'project-x -ex "es5" -an -c:v libx264 -qp 23 -f seg'
+
+
+def test_it_should_has_no_strict_exception_when_set_env():
+    # set special env to suppress strict mode globally
+    os.environ[EnvYAML.ENVYAML_STRICT_DISABLE] = ""
+
+    env = EnvYAML("tests/env.ignored.yaml", strict=True)
+
+    assert env["env_file.config"] == "$ENV_CONFIG_VERSION"
+
+    del os.environ[EnvYAML.ENVYAML_STRICT_DISABLE]
+
+
+def test_it_should_parse_env_file_as_list():
+    env = EnvYAML("tests/env.list.yaml", env_file="tests/test.env")
+
+    assert env["0.testing_1.env.username"] == "env-username"
+    assert env["1.testing_2.env.username"] == "env-username"
+    assert env["2.testing_3.env.username"] == "env-username"
+
+
+@pytest.mark.skipif(sys.version_info.major == 2, reason="Ignore UTF8 at Python 2.7")
+def test_it_should_parse_env_file_as_unicode():
+    va = "ÜBERMORGEN"
+    vb = "ПІСЛЯЗАВТРА"
+
+    os.environ[va] = va + "😃"
+    os.environ[vb] = vb + "😃"
+
+    env = EnvYAML("tests/env.default.yaml", "tests/test.env")
+
+    assert env["next.relase"] == va + "😃"
+    assert env["next.maybe"] == vb + "😃"
+
+    del os.environ[va]
+    del os.environ[vb]
+
+
+def test_it_should_throw_exception_when_double_variable_in_dotenv_file():
+    with pytest.raises(ValueError):
+        EnvYAML("tests/env.default.yaml", "tests/double.env")
+
+
+def test_it_should_pass_escaped_variable():
+    env = EnvYAML("tests/env.default.yaml", "tests/test.env")
+
+    assert env["test_escape.one"] == "$.foo"
+    assert env["test_escape.two"] == "$meet"
+    assert env["test_escape.three"] == "${bracket}"
+    assert env["test_escape.four"] == "SomePa$$$word"
+    assert env["test_escape.five"] == "SomePa$$${word}"
+    assert env["test_escape.six"] == "$env-password-with-escape"
+    assert env["test_escape.seven"] == "$env-password-with-escape"
+    assert env["test_escape.eight"] == "$DEFAULT"
+
+
+def test_it_should_properly_resolve_extra_fields():
+    env = EnvYAML("tests/env.default.yaml", "tests/test.env")
+
+    assert env["extra.password_extra_1"] == "password-extra"
+    assert env["key_with_slash"] == "c:\\Users\\User"
+
+
+def test_it_should_override_cfg_with_kwargs():
+    d = dict(PROJECT_NAME="project-x-UPDATED")
+    env = EnvYAML("tests/env.default.yaml", "tests/test.env", **d)
+
+    assert env["PROJECT_NAME"] == "project-x-UPDATED"
+
+
+def test_it_should_not_flatten():
+    env = EnvYAML(
+        yaml_file="tests/env.default.yaml",
+        env_file="tests/test.env",
+        strict=True,
+        flatten=False,
+    )
+
+    assert env["config"]["with_default"] == "DEFAULT"
+    assert "config.with_default" not in env
+
+
+def test_it_should_correct_handle_user_variables():
+    # set home to defined user
+    os.environ["HOME"] = "/home/user"
+
+    # read env file
+    env = EnvYAML(yaml_file="tests/env.default.yaml", env_file="tests/test.env")
+
+    # print(env['my_source_directory'])
+    assert env["my_source_directory"] == "/home/user/mapped/source/directory"
+
+
+def test_it_should_not_flatten():
+    env = EnvYAML(
+        yaml_file="tests/env.default.yaml",
+        env_file="tests/test.env",
+        strict=True,
+        flatten=False,
+    )
+
+    assert env["config"]["with_default"] == "DEFAULT"
+    assert "config.with_default" not in env

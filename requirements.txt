@@ -1,4 +1,4 @@
-PyYAML
+pyyaml
 pytest
 pytest-cov
 wheel

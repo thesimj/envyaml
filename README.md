@@ -1,15 +1,26 @@
-# EnvYAML | [![Latest Version](https://pypip.in/version/envyaml/badge.svg)](https://pypi.python.org/pypi/envyaml/) [![Build Status](https://travis-ci.com/thesimj/envyaml.svg?branch=master)](https://travis-ci.com/thesimj/envyaml) [![Coverage Status](https://coveralls.io/repos/github/thesimj/envyaml/badge.svg?branch=master)](https://coveralls.io/github/thesimj/envyaml?branch=master) ![Versions](https://img.shields.io/pypi/pyversions/envyaml.svg) ![License](https://img.shields.io/pypi/l/envyaml.svg)
-Simple YAML configuration file parser with easy access for structured data
+# EnvYAML | Easy configuration file parser for structured data
 
-### Why
-Modern configuration file become to be more and more complex, flexible and readable.
-YAML file format are perfect to store configuration, but had no option to pass environment variables. They give flexibility, readability and provide option to store complex data structure.
-This project aim to simplify usage of the YAML file and environment variables as program configuration file with easy config key access.
+[![Latest Version](https://pypip.in/version/envyaml/badge.svg)](https://pypi.python.org/pypi/envyaml/)
+[![Build Status](https://travis-ci.com/thesimj/envyaml.svg?branch=master)](https://travis-ci.com/thesimj/envyaml)
+[![Coverage Status](https://coveralls.io/repos/github/thesimj/envyaml/badge.svg?branch=master)](https://coveralls.io/github/thesimj/envyaml?branch=master)
+![Versions](https://img.shields.io/pypi/pyversions/envyaml.svg)
+[![Code Style](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+[![Alerts](https://img.shields.io/lgtm/alerts/g/thesimj/envyaml.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/thesimj/envyaml/alerts/)
+[![Code Quality](https://img.shields.io/lgtm/grade/python/g/thesimj/envyaml.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/thesimj/envyaml/context:python)
+[![License](https://img.shields.io/pypi/l/envyaml.svg)](LICENSE)
+
+
+### Motivation
+Modern configuration files become to be more and more complex, flexible, and readable.
+YAML file format is perfect to store configuration but had no option to pass environment variables. They give flexibility, readability and provide an option to store complex data structure.
+This project goal is to simplify usage of the YAML file and environment variables as program configuration files with easy config key access.
+
 
 ### Install
 ```bash
 pip install envyaml
 ```
+
 
 ### Basic usage
 Let's assume we had a project with this config file `env.yaml`
@@ -44,6 +55,8 @@ redis:
     config:
       expire: 300
       prefix: $REDIS_PREFIX
+
+escaped: $$.extra
 
 empty_env: $NOT_EXIST_ENV_VARIABLE
 ```
@@ -147,12 +160,18 @@ print(env.format('database.insert', table="users"))
 # >> INSERT INTO "users" (user, login) VALUES ($1, $2)
 ```
 
-
 ### Strict mode
-This mode is **enable by default** and prevent from declaring variables that
-not exist in `environment variables` or `.env` file. This leads to have runtime ValueError exception when variables
-not define with message `Strict mode enabled, variable $VAR not defined!`. To disable **strict** mode
-specify `strict=False` to EnvYAML object
+This mode is **enable by default** and prevents from declaring variables that do not exist in `environment variables` or `.env` file. This leads to having runtime `ValueError` exception when variables do not define with message `Strict mode enabled, variable $VAR not defined!`. To disable **strict** mode specify `strict=False` at EnvYAML object initialization. Another option to disable `strict` mode is to define `ENVYAML_STRICT_DISABLE` environment variable before initializing EnvYAML object.
+
+
+### Escaped variables
+In case of usage `$` in env.yaml file as value double `$$` should be used. Example:
+Use `escaped` variable
+```python
+print(env['escaped'])
+# >> $.extra
+```
+
 
 ### License
 MIT licensed. See the [LICENSE](LICENSE) file for more details.

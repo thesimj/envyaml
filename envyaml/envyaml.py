@@ -2,6 +2,10 @@
 # This file is part of EnvYaml project
 # https://github.com/thesimj/envyaml
 #
+# MIT License
+#
+# Copyright (c) 2021 Mykola Bubelich
+#
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
 # in the Software without restriction, including without limitation the rights
@@ -24,26 +28,36 @@ import io
 import os
 import re
 
-from yaml import safe_load
+try:
+    from yaml import safe_load
+except ImportError:
+    safe_load = None
 
-RE_COMMENTS = re.compile(r"(^#.*\n)", re.MULTILINE | re.UNICODE)
-RE_DOT_ENV = re.compile(r"^((?!\d)[\w\- ]+=.*)$", re.MULTILINE | re.UNICODE)
+# pattern to remove comments
+RE_COMMENTS = re.compile(r"(^#.*\n)", re.MULTILINE | re.UNICODE | re.IGNORECASE)
+# pattern to read .env file
+RE_DOT_ENV = re.compile(
+    r"^(?!\d+)(?P<name>[\w\-\.]+)\=[\"\']?(?P<value>(.*?))[\"\']?$",
+    re.MULTILINE | re.UNICODE | re.IGNORECASE,
+)
 
-RE_ENV = [
-    (re.compile(r"(?<=\$\{)(.*?)(?=\})", re.MULTILINE | re.UNICODE), ["${{{match}}}"]),
-    (
-        re.compile(r"(?<=[\"\']\$)(.*?)(?=[\"\']$)", re.MULTILINE | re.UNICODE),
-        ['"${match}"', "'${match}'"],
-    ),
-    (re.compile(r"\$(?!\d)(.*)", re.MULTILINE | re.UNICODE), ["{match}"]),
-]
+# pattern to extract env variables
+RE_PATTERN = re.compile(
+    r"(?P<pref>[\"\'])?"
+    r"(\$(?:(?P<escaped>(\$|\d+))|"
+    r"{(?P<braced>(.*?))(\|(?P<braced_default>.*?))?}|"
+    r"(?P<named>[\w\-\.]+)(\|(?P<named_default>.*))?))"
+    r"(?P<post>[\"\'])?",
+    re.MULTILINE | re.UNICODE | re.IGNORECASE | re.VERBOSE,
+)
 
-__version__ = "1.1.201201"
+__version__ = "1.10.211231"
 
 
 class EnvYAML:
     __version__ = __version__
 
+    ENVYAML_STRICT_DISABLE = "ENVYAML_STRICT_DISABLE"  # type: str
     DEFAULT_ENV_YAML_FILE = "env.yaml"  # type:str
     DEFAULT_ENV_FILE = ".env"  # type:str
 
@@ -53,7 +67,13 @@ class EnvYAML:
     __strict = True  # type: bool
 
     def __init__(
-        self, yaml_file=None, env_file=None, include_environment=True, strict=True
+        self,
+        yaml_file=None,
+        env_file=None,
+        include_environment=True,
+        strict=True,
+        flatten=True,
+        **kwargs
     ):
         """Create EnvYAML class instance and read content from environment and files if they exists
 
@@ -61,14 +81,26 @@ class EnvYAML:
         :param str env_file: file path for .env file or None by default
         :param bool include_environment: include environment variable, by default true
         :param bool strict: use strict mode and throw exception when have unset variable, by default true
-        :return EnvYAML: new instance of EnvYAML
+        :param bool flatten: whether we should flatten config hierarchy or not
+        :param dict kwargs: additional environment variables keys and values
+        :return: new instance of EnvYAML
         """
-        self.__strict = strict
-        self.__env_file = env_file
-        self.__yaml_file = yaml_file
+        # raise exception module not found when no pyyaml installed
+        if safe_load is None:
+            raise ModuleNotFoundError(
+                'EnvYAML require "pyyaml >= 5" module to work. '
+                "Consider install this module into environment!"
+            )
 
         # read environment
         self.__cfg = dict(os.environ) if include_environment else {}
+
+        # set strict mode to false if "ENVYAML_STRICT_DISABLE" presents in env else use "strict" from function
+        self.__strict = False if self.ENVYAML_STRICT_DISABLE in self.__cfg else strict
+
+        # default file names
+        self.__env_file = env_file
+        self.__yaml_file = yaml_file
 
         # read .env file and update config
         self.__cfg.update(
@@ -78,26 +110,34 @@ class EnvYAML:
             )
         )
 
-        # read yaml file and update config
-        self.__cfg.update(
-            self.__read_yaml_file(
-                self.__get_file_path(
-                    yaml_file, "ENV_YAML_FILE", self.DEFAULT_ENV_YAML_FILE
-                ),
-                self.__cfg,
-                self.__strict,
-            )
+        # fill cfg with kwargs
+        self.__cfg.update(kwargs)
+
+        # read yaml file and parse it
+        yaml_config = self.__read_yaml_file(
+            self.__get_file_path(
+                yaml_file, "ENV_YAML_FILE", self.DEFAULT_ENV_YAML_FILE
+            ),
+            self.__cfg,
+            self.__strict,
         )
 
+        # update config
+        if isinstance(yaml_config, list):
+            self.__cfg.update({k: v for k, v in enumerate(yaml_config)})
+        else:
+            self.__cfg.update(yaml_config)
+
         # make config as flat dict with '.'
-        self.__cfg = self.__flat(self.__cfg)
+        if flatten:
+            self.__cfg = self.__flat(self.__cfg)
 
     def get(self, key, default=None):
         """Get configuration variable with default value. If no `default` value set use None
 
         :param any key: name for the configuration key
         :param any default: default value if no key found
-        :return any:
+        :return: any
         """
 
         return self.__cfg.get(key, default)
@@ -105,7 +145,7 @@ class EnvYAML:
     def export(self):
         """Export config
 
-        :return dict: dictionary with config
+        :return: dict with config
         """
         return self.__cfg.copy()
 
@@ -113,36 +153,44 @@ class EnvYAML:
     def environ():
         """Get os.environ mapping object
 
-        :return MutableMapping: A mapping object representing the string environment
+        :return: A mapping object representing the string environment
         """
         return os.environ
 
     @staticmethod
-    def __read_env_file(file_path, strict=True):
+    def __read_env_file(file_path, strict):
         """read and parse env file
 
         :param str file_path: path to file
         :param bool strict: strict mode
-        :return dict:
+        :return: dict
         """
-        config = {}
+        config = dict()
+        defined = set()
 
         if file_path:
             with io.open(file_path, encoding="utf8") as f:
                 content = f.read()  # type: str
 
-            # remove comments
-            content = RE_COMMENTS.sub("", content)
+            # iterate over findings
+            for entry in RE_DOT_ENV.finditer(content):
+                name = entry.group("name")
+                value = entry.group("value")
 
-            for line in RE_DOT_ENV.findall(content):
-                name, value = line.strip().split("=", 1)  # type: str,str
+                # check double definition
+                if name in config:
+                    defined.add(name)
 
-                # strip names and values
-                name = name.strip().strip("'\"")
-                value = value.strip().strip("'\"")
+                # set variable name and value
+                config[name] = os.path.expandvars(value) if "$" in value else value
 
-                # set config
-                config[name] = value
+        # strict mode
+        if strict and defined:
+            raise ValueError(
+                "Strict mode enabled, variables "
+                + ", ".join(["$" + v for v in defined])
+                + " defined several times!"
+            )
 
         return config
 
@@ -160,43 +208,80 @@ class EnvYAML:
         with io.open(file_path, encoding="utf8") as f:
             content = f.read()  # type:str
 
-        # remove comments
+        # remove all comments
         content = RE_COMMENTS.sub("", content)
 
-        # fill variables and default values
-        for re_env, templates in RE_ENV:
-            for entry in re_env.finditer(content):
-                match, group = entry.group(), entry.groups()[0]  # type: str, str
+        # not found variables
+        not_found_variables = set()
 
-                # if group exist then get group
-                kv = group if group else match[1:]  # type: str
-                var_name, var_default = (
-                    kv.split(separator) if separator in kv else (kv, None)
-                )  # type: str, str
+        # changes dictionary
+        replaces = dict()
 
-                if var_name in cfg:
-                    for tm in templates:
-                        # update match with template
-                        content = content.replace(tm.format(match=match), cfg[var_name])
+        shifting = 0
 
-                elif var_name not in cfg and var_default is not None:
-                    for tm in templates:
-                        # update match with template
-                        content = content.replace(tm.format(match=match), var_default)
+        # iterate over findings
+        for entry in RE_PATTERN.finditer(content):
+            groups = entry.groupdict()  # type: dict
 
+            # replace
+            variable = None
+            default = None
+            replace = None
+
+            if groups["named"]:
+                variable = groups["named"]
+                default = groups["named_default"]
+
+            elif groups["braced"]:
+                variable = groups["braced"]
+                default = groups["braced_default"]
+
+            elif groups["escaped"] and "$" in groups["escaped"]:
+                span = entry.span()
+                content = (
+                    content[: span[0] + shifting]
+                    + groups["escaped"]
+                    + content[span[1] + shifting :]
+                )
+                # Added shifting since every time we update content we are
+                # changing the original groups spans
+                shifting += len(groups["escaped"]) - (span[1] - span[0])
+
+            if variable is not None:
+                if variable in cfg:
+                    replace = cfg[variable]
+                elif variable not in cfg and default is not None:
+                    replace = default
                 else:
-                    if strict:
-                        raise ValueError(
-                            "Strict mode enabled, variable $"
-                            + var_name
-                            + " not defined!"
-                        )
+                    not_found_variables.add(variable)
 
-        # load content as yaml
+            if replace is not None:
+                # build match
+                search = "${" if groups["braced"] else "$"
+                search += variable
+                search += separator + default if default is not None else ""
+                search += "}" if groups["braced"] else ""
+
+                # store findings
+                replaces[search] = replace
+
+        # strict mode
+        if strict and not_found_variables:
+            raise ValueError(
+                "Strict mode enabled, variables "
+                + ", ".join(["$" + v for v in not_found_variables])
+                + " are not defined!"
+            )
+
+        # replace finding with there respective values
+        for replace in sorted(replaces, reverse=True):
+            content = content.replace(replace, replaces[replace])
+
+        # load proper content
         yaml = safe_load(content)
 
         # if contains somethings
-        if yaml and isinstance(yaml, dict):
+        if yaml and isinstance(yaml, (dict, list)):
             return yaml
 
         # by default return empty dict
@@ -209,7 +294,7 @@ class EnvYAML:
         :param str file_path: path to file
         :param str env_name: env name
         :param str default: default file path
-        :return str: return file path or None if file not exists
+        :return: return file path or None if file not exists
         """
         if file_path:
             return file_path
@@ -226,7 +311,7 @@ class EnvYAML:
 
         :param str prefix: prefix
         :param any config: configuration
-        :return dict:
+        :return: dict
         """
         dest_ = {}
 
@@ -257,7 +342,7 @@ class EnvYAML:
         """Flat dictionaries in recursive way
 
         :param dict config: configuration
-        :return dict:
+        :return: dict
         """
         dest_ = {}
 
@@ -281,7 +366,7 @@ class EnvYAML:
         """Apply quick format for string values with {arg}
 
         :param str key: key to argument
-        :return str:
+        :return: str
         """
         return self.__cfg[key].format(**kwargs)
 
@@ -293,7 +378,7 @@ class EnvYAML:
         """Check if key in configuration
 
         :param any item: get
-        :return: boo
+        :return: bool
         """
         return item in self.__cfg
 
@@ -301,7 +386,7 @@ class EnvYAML:
         """Get item ['item']
 
         :param str key: get environment name as item
-        :return any:
+        :return: any
         """
 
         return self.__cfg[key]
