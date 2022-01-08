@@ -31,7 +31,7 @@ jobs:
       run: python setup.py sdist bdist_wheel
 
     - name: Show package
-      run: ln -lh dist/
+      run: ls -lh dist/
 
 #    - name: Upload distributions
 #      env:
