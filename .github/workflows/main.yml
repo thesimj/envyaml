@@ -62,8 +62,8 @@ jobs:
       - name: Show packages
         run: ls -lh dist/
 
-#      - name: Publish package to PyPi
-#        env:
-#          TWINE_USERNAME: __token__
-#          TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
-#        run: twine upload dist/*
+      - name: Publish package to PyPi
+        env:
+          TWINE_USERNAME: __token__
+          TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
+        run: twine upload dist/*
