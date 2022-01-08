@@ -1,6 +1,6 @@
-name: CI Tests
+name: CI/CD Pipeline
 
-on: [ push,  pull_request ]
+on: [ push,  pull_request, release ]
 
 jobs:
   build-and-tests:
@@ -50,3 +50,6 @@ jobs:
 
       - name: Show package
         run: ls -lh dist/
+
+      - name: Show Github Ref
+        run: echo ${{ github.ref }}
