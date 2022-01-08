@@ -2,7 +2,7 @@ name: EnvYaml CI/CD Pipeline
 
 on:
   push:
-    branches: [ main, develop, github_actions_publish ]
+    branches: [ main, develop ]
 
   pull_request:
     types: [ assigned, opened, synchronize, reopened ]
