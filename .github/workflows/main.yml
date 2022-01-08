@@ -65,5 +65,8 @@ jobs:
 
       - name: Publish package to PyPi
         if: startsWith(github.ref, 'refs/tags/')
-        run: echo "publish package"
+        env:
+          TWINE_USERNAME: __token__
+          TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
+        run: twine upload dist/*
 
