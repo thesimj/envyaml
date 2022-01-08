@@ -2,3 +2,6 @@ pyyaml
 pytest
 pytest-cov
 wheel
+python-coveralls
+setuptools
+twine
