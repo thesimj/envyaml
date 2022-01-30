@@ -1,9 +1,9 @@
 # EnvYAML | Easy configuration file parser for structured data
 
-[![Latest Version](https://pypip.in/version/envyaml/badge.svg)](https://pypi.python.org/pypi/envyaml/)
+[![Latest Version](https://badgen.net/pypi/v/envyaml)](https://pypi.python.org/pypi/envyaml/)
 [![EnvYaml CI/CD Pipeline](https://github.com/thesimj/envyaml/actions/workflows/main.yml/badge.svg)](https://github.com/thesimj/envyaml/actions/workflows/main.yml)
-[![Coverage Status](https://coveralls.io/repos/github/thesimj/envyaml/badge.svg?branch=main)](https://coveralls.io/github/thesimj/envyaml?branch=main)
-![Versions](https://img.shields.io/pypi/pyversions/envyaml.svg)
+[![Coverage Status](https://badgen.net/coveralls/c/github/thesimj/envyaml)](https://coveralls.io/github/thesimj/envyaml?branch=main)
+![Versions](https://badgen.net/pypi/python/envyaml)
 [![Code Style](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![Alerts](https://img.shields.io/lgtm/alerts/g/thesimj/envyaml.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/thesimj/envyaml/alerts/)
 [![Code Quality](https://img.shields.io/lgtm/grade/python/g/thesimj/envyaml.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/thesimj/envyaml/context:python)
