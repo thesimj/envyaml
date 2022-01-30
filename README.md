@@ -8,7 +8,7 @@
 [![Alerts](https://img.shields.io/lgtm/alerts/g/thesimj/envyaml.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/thesimj/envyaml/alerts/)
 [![Code Quality](https://img.shields.io/lgtm/grade/python/g/thesimj/envyaml.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/thesimj/envyaml/context:python)
 [![License](https://img.shields.io/pypi/l/envyaml.svg)](LICENSE)
-
+[![Downloads](https://static.pepy.tech/personalized-badge/envyaml?period=total&units=international_system&left_color=black&right_color=green&left_text=Downloads)](https://pepy.tech/project/envyaml)
 
 ### Motivation
 Modern configuration files become to be more and more complex, flexible, and readable.
