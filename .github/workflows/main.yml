@@ -57,10 +57,15 @@ jobs:
       - name: Run tests
         run: pytest -v --tb=native -p no:warnings --cov-fail-under 90 --cov --cov-report xml
 
+      - name: Build lcov coverage file
+        run: coverage lcov
+
       - name: Coveralls
         uses: coverallsapp/github-action@master
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
+          path-to-lcov: coverage.lcov
+
 
   pip-publish:
     needs: build-and-tests
