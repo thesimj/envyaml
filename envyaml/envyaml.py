@@ -24,6 +24,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+import collections
 import io
 import os
 import re
@@ -93,7 +94,7 @@ class EnvYAML:
             )
 
         # read environment
-        self.__cfg = dict(os.environ) if include_environment else {}
+        self.__cfg = collections.ChainMap({}, os.environ) if include_environment else {}
 
         # set strict mode to false if "ENVYAML_STRICT_DISABLE" presents in env else use "strict" from function
         self.__strict = False if self.ENVYAML_STRICT_DISABLE in self.__cfg else strict

@@ -403,3 +403,10 @@ def test_it_should_not_flatten():
 
     assert env["config"]["with_default"] == "DEFAULT"
     assert "config.with_default" not in env
+
+
+def test_it_should_access_mixed_case_environment_variables():
+    os.environ["mixed_CASE"] = "pass"
+    env = EnvYAML("tests/env.test.yaml", env_file="tests/test.env")
+    assert env["mixed_case_var_name"] == "pass"
+    del os.environ["mixed_CASE"]
