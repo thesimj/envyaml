@@ -34,7 +34,7 @@ except ImportError:
     safe_load = None
 
 # pattern to remove comments
-RE_COMMENTS = re.compile(r"(^#.*\n)", re.MULTILINE | re.UNICODE | re.IGNORECASE)
+RE_COMMENTS = re.compile(r"((?:(?<=\s)|^)#.*$)", re.MULTILINE | re.UNICODE | re.IGNORECASE)  
 # pattern to read .env file
 RE_DOT_ENV = re.compile(
     r"^(?!\d+)(?P<name>[\w\-\.]+)\=[\"\']?(?P<value>(.*?))[\"\']?$",
