@@ -1,6 +1,6 @@
 # EnvYAML | Easy configuration file parser for structured data
 
-[![Latest Version](https://badgen.net/pypi/v/envyaml)](https://pypi.python.org/pypi/envyaml/)
+[![Latest Version](https://badgen.net/pypi/v/envyaml)](https://pypi.python.org/pypi/envyaml/) [![Conda Version](https://img.shields.io/conda/vn/conda-forge/envyaml.svg)](https://anaconda.org/conda-forge/envyaml)
 [![EnvYaml CI/CD Pipeline](https://github.com/thesimj/envyaml/actions/workflows/main.yml/badge.svg)](https://github.com/thesimj/envyaml/actions/workflows/main.yml)
 [![Coverage Status](https://badgen.net/coveralls/c/github/thesimj/envyaml)](https://coveralls.io/github/thesimj/envyaml?branch=main)
 ![Versions](https://badgen.net/pypi/python/envyaml)
@@ -20,7 +20,10 @@ This project goal is to simplify usage of the YAML file and environment variable
 ```bash
 pip install envyaml
 ```
-
+or
+```bash
+conda install conda-forge::envyaml
+```
 
 ### Basic usage
 Let's assume we had a project with this config file `env.yaml`
